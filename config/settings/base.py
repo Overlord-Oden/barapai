@@ -27,9 +27,11 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    # On ajoutera nos apps ici en Phase 2B
+    'accounts',
+    'catalog',
+    'services',
+    'core',
 ]
-
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
