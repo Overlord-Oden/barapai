@@ -32,3 +32,30 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('email', 'full_name', 'role', 'password1', 'password2'),
         }),
     )
+
+    from .models import ArtisanProfile
+
+    @admin.register(ArtisanProfile)
+    class ArtisanProfileAdmin(admin.ModelAdmin):
+        list_display = (
+            'user', 'city', 'neighborhood', 'hourly_rate',
+            'is_available', 'is_verified_by_admin', 'average_rating',
+        )
+        list_filter = ('is_available', 'is_verified_by_admin', 'city')
+        search_fields = ('user__email', 'user__full_name', 'bio')
+        readonly_fields = ('average_rating', 'total_jobs', 'created_at', 'updated_at')
+
+        fieldsets = (
+            (_('Utilisateur'), {'fields': ('user',)}),
+            (_('Profil professionnel'), {
+                'fields': ('bio', 'years_experience', 'hourly_rate', 'is_available', 'profile_picture'),
+            }),
+            (_('Localisation'), {
+                'fields': ('city', 'neighborhood', 'latitude', 'longitude'),
+            }),
+            (_('Statistiques'), {
+                'fields': ('average_rating', 'total_jobs'),
+            }),
+            (_('Verification'), {'fields': ('is_verified_by_admin',)}),
+            (_('Dates'), {'fields': ('created_at', 'updated_at')}),
+        )

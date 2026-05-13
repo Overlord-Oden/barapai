@@ -78,6 +78,67 @@ class User(AbstractUser):
         return self.role == self.Role.CLIENT
 
 
-from django.db import models
+class ArtisanProfile(models.Model):
+    """
+    Profil etendu pour les utilisateurs ayant le role ARTISAN.
+    Cree lors de l'inscription en tant qu'artisan.
+    """
 
-# Create your models here.
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='artisan_profile',
+        limit_choices_to={'role': User.Role.ARTISAN},
+        verbose_name=_('Utilisateur'),
+    )
+
+    # Profil professionnel
+    bio = models.TextField(_('Biographie / description'), blank=True)
+    years_experience = models.PositiveSmallIntegerField(
+        _("Annees d'experience"), default=0
+    )
+    hourly_rate = models.PositiveIntegerField(
+        _('Tarif horaire (FCFA)'), null=True, blank=True
+    )
+    is_available = models.BooleanField(_('Disponible'), default=True)
+    profile_picture = models.ImageField(
+        _('Photo de profil'),
+        upload_to='profile_pictures/',
+        blank=True,
+        null=True,
+    )
+
+    # Localisation
+    city = models.CharField(_('Ville'), max_length=100, default='Abidjan')
+    neighborhood = models.CharField(_('Quartier'), max_length=100, blank=True)
+    latitude = models.FloatField(_('Latitude'), null=True, blank=True)
+    longitude = models.FloatField(_('Longitude'), null=True, blank=True)
+
+    # Statistiques (mises a jour automatiquement plus tard)
+    average_rating = models.DecimalField(
+        _('Note moyenne'),
+        max_digits=3, decimal_places=2,
+        default=0,
+    )
+    total_jobs = models.PositiveIntegerField(_('Missions terminees'), default=0)
+
+    # Validation admin (KYC simple)
+    is_verified_by_admin = models.BooleanField(
+        _('Verifie par admin'), default=False
+    )
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('Profil artisan')
+        verbose_name_plural = _('Profils artisans')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'Profil de {self.user.full_name}'
+
+    @property
+    def has_location(self):
+        return self.latitude is not None and self.longitude is not None
