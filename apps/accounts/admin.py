@@ -44,12 +44,13 @@ class UserAdmin(BaseUserAdmin):
         list_filter = ('is_available', 'is_verified_by_admin', 'city')
         search_fields = ('user__email', 'user__full_name', 'bio')
         readonly_fields = ('average_rating', 'total_jobs', 'created_at', 'updated_at')
+        filter_horizontal = ('categories',)
 
         fieldsets = (
             (_('Utilisateur'), {'fields': ('user',)}),
-            (_('Profil professionnel'), {
-                'fields': ('bio', 'years_experience', 'hourly_rate', 'is_available', 'profile_picture'),
-            }),
+        (_('Profil professionnel'), {
+    'fields': ('bio', 'years_experience', 'hourly_rate', 'is_available', 'categories', 'profile_picture'),
+}),
             (_('Localisation'), {
                 'fields': ('city', 'neighborhood', 'latitude', 'longitude'),
             }),

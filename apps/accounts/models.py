@@ -101,6 +101,13 @@ class ArtisanProfile(models.Model):
         _('Tarif horaire (FCFA)'), null=True, blank=True
     )
     is_available = models.BooleanField(_('Disponible'), default=True)
+    # Categories de metiers (M2M avec catalog.Category)
+    categories = models.ManyToManyField(
+        'catalog.Category',
+        related_name='artisans',
+        blank=True,
+        verbose_name=_('Categories de metiers'),
+    )
     profile_picture = models.ImageField(
         _('Photo de profil'),
         upload_to='profile_pictures/',
