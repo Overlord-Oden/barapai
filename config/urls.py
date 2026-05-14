@@ -20,10 +20,11 @@ URL configuration for Barapai.
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('core.urls')),
 ]
 
 # En dev, on sert les fichiers media et static manuellement

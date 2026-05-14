@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="bg-gradient-to-br from-orange-500 to-orange-700 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 text-center">
+        <h1 class="text-4xl md:text-6xl font-bold mb-4">
+            Trouve <span class="underline decoration-yellow-300">ton boss</span> 🔧
+        </h1>
+        <p class="text-xl md:text-2xl mb-8 text-orange-100">
+            Plombier, électricien, menuisier... les artisans d'Abidjan à portée de clic.
+        </p>
+        <p class="italic text-orange-200 mb-10">"Seul le travail paie."</p>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="#" class="bg-white text-orange-700 px-8 py-3 rounded-lg font-semibold hover:bg-orange-50 transition">
+                Trouver un artisan
+            </a>
+            <a href="#" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-orange-700 transition">
+                Devenir artisan
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Categories -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h2 class="text-3xl font-bold text-center mb-2">Nos catégories de métiers</h2>
+    <p class="text-center text-gray-600 mb-10">Choisis le métier dont tu as besoin</p>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {% for category in categories %}
+            <a href="#" class="bg-white rounded-xl p-6 text-center hover:shadow-lg transition border border-gray-200 hover:border-orange-300">
+                <div class="text-4xl mb-2">{{ category.icon|default:"🔧" }}</div>
+                <h3 class="font-semibold text-gray-900">{{ category.name }}</h3>
+                <p class="text-xs text-gray-500 mt-1">
+                    {{ category.artisans.count }} artisan{{ category.artisans.count|pluralize:"s" }}
+                </p>
+            </a>
+        {% empty %}
+            <p class="col-span-full text-center text-gray-500">
+                Aucune catégorie pour l'instant.
+            </p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- How it works -->
+<section class="bg-white py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-center mb-10">Comment ça marche</h2>
+
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="text-center">
+                <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">1</div>
+                <h3 class="font-semibold mb-2">Cherche</h3>
+                <p class="text-gray-600 text-sm">Filtre par métier, quartier et budget.</p>
+            </div>
+            <div class="text-center">
+                <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">2</div>
+                <h3 class="font-semibold mb-2">Contacte</h3>
+                <p class="text-gray-600 text-sm">Envoie ta demande directement à l'artisan.</p>
+            </div>
+            <div class="text-center">
+                <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">3</div>
+                <h3 class="font-semibold mb-2">Évalue</h3>
+                <p class="text-gray-600 text-sm">Note ton expérience après la mission.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
