@@ -23,13 +23,15 @@
             <!-- Auth -->
             <div class="flex items-center gap-3">
                 {% if user.is_authenticated %}
-                    <span class="text-sm text-gray-600">{{ user.full_name }}</span>
-                    <a href="#" class="text-sm text-gray-700 hover:text-orange-600">Déconnexion</a>
+                    <span class="text-sm text-gray-600 hidden sm:inline">{{ user.full_name }}</span>
+                    <a href="{% url 'accounts:logout' %}" class="text-sm text-gray-700 hover:text-orange-600">
+                        Deconnexion
+                    </a>
                 {% else %}
-                    <a href="#" class="text-sm text-gray-700 hover:text-orange-600 font-medium">
+                    <a href="{% url 'accounts:login' %}" class="text-sm text-gray-700 hover:text-orange-600 font-medium">
                         Connexion
                     </a>
-                    <a href="#" class="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition">
+                    <a href="{% url 'accounts:signup' %}" class="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition">
                         Inscription
                     </a>
                 {% endif %}

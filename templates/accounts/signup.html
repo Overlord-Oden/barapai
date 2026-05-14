@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-12">
+    <div class="bg-white rounded-2xl shadow-lg p-8">
+        <div class="text-center mb-6">
+            <span class="text-4xl">🔨</span>
+            <h1 class="text-2xl font-bold mt-2">Rejoindre Barapai</h1>
+            <p class="text-gray-600 text-sm mt-1">Cree ton compte en 1 minute</p>
+        </div>
+
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.role.label }}</label>
+                <div class="grid grid-cols-2 gap-3">
+                    {% for radio in form.role %}
+                    <label class="border-2 border-gray-200 rounded-lg p-3 cursor-pointer has-[:checked]:border-orange-500 has-[:checked]:bg-orange-50 flex items-center">
+                        {{ radio.tag }}
+                        <span class="ml-2 font-medium">{{ radio.choice_label }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% if form.role.errors %}<p class="text-red-600 text-xs mt-1">{{ form.role.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.full_name.label }}</label>
+                {{ form.full_name }}
+                {% if form.full_name.errors %}<p class="text-red-600 text-xs mt-1">{{ form.full_name.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                {{ form.email }}
+                {% if form.email.errors %}<p class="text-red-600 text-xs mt-1">{{ form.email.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.phone.label }}</label>
+                {{ form.phone }}
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.password1.label }}</label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}<p class="text-red-600 text-xs mt-1">{{ form.password1.errors.0 }}</p>{% endif %}
+                {% if form.password1.help_text %}<p class="text-xs text-gray-500 mt-1">{{ form.password1.help_text|safe }}</p>{% endif %}
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.password2.label }}</label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}<p class="text-red-600 text-xs mt-1">{{ form.password2.errors.0 }}</p>{% endif %}
+            </div>
+
+            <button type="submit" class="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition">
+                Creer mon compte
+            </button>
+        </form>
+
+        <p class="text-center text-sm text-gray-600 mt-6">
+            Deja un compte ?
+            <a href="{% url 'accounts:login' %}" class="text-orange-600 hover:underline font-medium">Se connecter</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

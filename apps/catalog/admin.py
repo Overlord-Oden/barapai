@@ -17,6 +17,7 @@ class CategoryAdmin(admin.ModelAdmin):
     def get_artisans_count(self, obj):
         return obj.artisans.count()
 
+
 @admin.register(PortfolioImage)
 class PortfolioImageAdmin(admin.ModelAdmin):
     list_display = ('artisan', 'caption', 'uploaded_at')
