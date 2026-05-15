@@ -1,0 +1,17 @@
+<div class="mb-4 text-sm text-gray-600">
+    {{ artisans|length }} artisan{{ artisans|length|pluralize }} trouvé{{ artisans|length|pluralize }}
+</div>
+
+{% if artisans %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for artisan in artisans %}
+        {% include 'catalog/partials/_artisan_card.html' with artisan=artisan %}
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-16">
+    <span class="text-6xl mb-4 block">🔎</span>
+    <p class="text-gray-500 font-medium">Aucun artisan trouvé pour cette recherche.</p>
+    <p class="text-sm text-gray-400 mt-2">Essaie de modifier tes filtres.</p>
+</div>
+{% endif %}

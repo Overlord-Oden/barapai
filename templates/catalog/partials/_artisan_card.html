@@ -1,0 +1,60 @@
+<div class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition">
+    <div class="p-5">
+        <div class="flex items-start gap-4 mb-3">
+            {% if artisan.profile_picture %}
+                <img src="{{ artisan.profile_picture.url }}" alt="{{ artisan.user.full_name }}"
+                     class="w-16 h-16 rounded-full object-cover">
+            {% else %}
+                <div class="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center text-2xl">
+                    👷
+                </div>
+            {% endif %}
+
+            <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-gray-900 truncate">{{ artisan.user.full_name }}</h3>
+                <p class="text-sm text-gray-500">{{ artisan.neighborhood|default:artisan.city }}</p>
+                <div class="flex items-center gap-1 mt-1">
+                    <span class="text-yellow-500">★</span>
+                    <span class="text-sm font-medium">{{ artisan.average_rating|default:"—" }}</span>
+                    <span class="text-xs text-gray-400">({{ artisan.total_jobs }} mission{{ artisan.total_jobs|pluralize }})</span>
+                </div>
+            </div>
+
+            {% if artisan.is_available %}
+                <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap">
+                    Disponible
+                </span>
+            {% else %}
+                <span class="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded-full whitespace-nowrap">
+                    Occupé
+                </span>
+            {% endif %}
+        </div>
+
+        <div class="flex flex-wrap gap-1 mb-3">
+            {% for cat in artisan.categories.all %}
+                <span class="text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded">
+                    {{ cat.icon }} {{ cat.name }}
+                </span>
+            {% endfor %}
+        </div>
+
+        {% if artisan.bio %}
+            <p class="text-sm text-gray-600 line-clamp-2 mb-3">{{ artisan.bio }}</p>
+        {% endif %}
+
+        <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+            {% if artisan.hourly_rate %}
+                <span class="text-sm text-gray-600">
+                    Dès <strong class="text-orange-600">{{ artisan.hourly_rate }} FCFA</strong>/h
+                </span>
+            {% else %}
+                <span class="text-sm text-gray-400">Tarif sur devis</span>
+            {% endif %}
+
+            <a href="{% url 'catalog:artisan_detail' pk=artisan.pk %}" class="text-sm font-medium text-orange-600 hover:underline">
+                Voir le profil →
+            </a>
+        </div>
+    </div>
+</div>

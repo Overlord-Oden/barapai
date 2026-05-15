@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ artisan.user.full_name }}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="bg-orange-50 border-b border-orange-100">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <a href="{% url 'catalog:artisans_list' %}" class="text-sm text-orange-600 hover:underline">
+            ← Retour aux artisans
+        </a>
+    </div>
+</div>
+
+<!-- Hero du profil -->
+<section class="bg-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="flex flex-col md:flex-row gap-6 items-start">
+            {% if artisan.profile_picture %}
+                <img src="{{ artisan.profile_picture.url }}" alt="{{ artisan.user.full_name }}"
+                     class="w-32 h-32 md:w-40 md:h-40 rounded-2xl object-cover">
+            {% else %}
+                <div class="w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-orange-100 flex items-center justify-center text-6xl">
+                    👷
+                </div>
+            {% endif %}
+
+            <div class="flex-1">
+                <div class="flex flex-wrap items-start justify-between gap-3 mb-2">
+                    <h1 class="text-3xl font-bold text-gray-900">{{ artisan.user.full_name }}</h1>
+                    {% if artisan.is_available %}
+                        <span class="bg-green-100 text-green-700 text-sm px-3 py-1 rounded-full font-medium">
+                            ● Disponible
+                        </span>
+                    {% else %}
+                        <span class="bg-gray-100 text-gray-500 text-sm px-3 py-1 rounded-full">
+                            Occupé
+                        </span>
+                    {% endif %}
+                </div>
+
+                <p class="text-gray-600 mb-3">
+                    📍 {% if artisan.neighborhood %}{{ artisan.neighborhood }}, {% endif %}{{ artisan.city }}
+                </p>
+
+                <div class="flex flex-wrap gap-2 mb-4">
+                    {% for cat in artisan.categories.all %}
+                        <span class="text-sm bg-orange-50 text-orange-700 px-3 py-1 rounded-full font-medium">
+                            {{ cat.icon }} {{ cat.name }}
+                        </span>
+                    {% endfor %}
+                </div>
+
+                <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+                    <div>
+                        <span class="text-yellow-500 text-lg">★</span>
+                        <span class="font-semibold">{{ artisan.average_rating|default:"—" }}</span>
+                        <span class="text-gray-500">/ 5</span>
+                    </div>
+                    <div class="text-gray-600">
+                        <strong class="text-gray-900">{{ artisan.total_jobs }}</strong> mission{{ artisan.total_jobs|pluralize }}
+                    </div>
+                    <div class="text-gray-600">
+                        <strong class="text-gray-900">{{ artisan.years_experience }}</strong> an{{ artisan.years_experience|pluralize }} d'expérience
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contenu principal -->
+<section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid md:grid-cols-3 gap-8">
+        <!-- Colonne principale -->
+        <div class="md:col-span-2 space-y-8">
+            <!-- Bio -->
+            {% if artisan.bio %}
+            <div>
+                <h2 class="text-xl font-bold text-gray-900 mb-3">À propos</h2>
+                <p class="text-gray-700 whitespace-pre-line">{{ artisan.bio }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Portfolio -->
+            {% if artisan.portfolio_images.all %}
+            <div>
+                <h2 class="text-xl font-bold text-gray-900 mb-3">Portfolio</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {% for photo in artisan.portfolio_images.all %}
+                    <div class="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                        <img src="{{ photo.image.url }}" alt="{{ photo.caption|default:'Realisation' }}"
+                             class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Avis -->
+            <div>
+                <h2 class="text-xl font-bold text-gray-900 mb-3">
+                    Avis ({{ recent_reviews|length }})
+                </h2>
+                {% if recent_reviews %}
+                <div class="space-y-4">
+                    {% for review in recent_reviews %}
+                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-start justify-between mb-2">
+                            <div>
+                                <p class="font-medium text-gray-900">{{ review.service_request.client.full_name }}</p>
+                                <p class="text-xs text-gray-500">{{ review.created_at|date:"d M Y" }}</p>
+                            </div>
+                            <div class="text-yellow-500 text-lg">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= review.rating %}★{% else %}<span class="text-gray-300">★</span>{% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% if review.comment %}
+                            <p class="text-sm text-gray-700">{{ review.comment }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-sm text-gray-500 italic">Aucun avis pour le moment.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar CTA -->
+        <div>
+            <div class="bg-white border border-gray-200 rounded-2xl p-6 sticky top-20">
+                {% if artisan.hourly_rate %}
+                <div class="text-center mb-4">
+                    <p class="text-sm text-gray-500">À partir de</p>
+                    <p class="text-3xl font-bold text-orange-600">
+                        {{ artisan.hourly_rate }} <span class="text-base">FCFA/h</span>
+                    </p>
+                </div>
+                {% else %}
+                <div class="text-center mb-4">
+                    <p class="text-sm text-gray-500">Tarif</p>
+                    <p class="text-lg font-semibold text-gray-700">Sur devis</p>
+                </div>
+                {% endif %}
+
+                {% if user.is_authenticated and user.is_client %}
+                    <a href="#" class="block w-full bg-orange-600 text-white py-3 rounded-lg font-semibold text-center hover:bg-orange-700 transition">
+                        Demander un service
+                    </a>
+                {% elif user.is_authenticated %}
+                    <p class="text-center text-sm text-gray-500 italic">
+                        Connecte-toi en tant que client pour faire une demande.
+                    </p>
+                {% else %}
+                    <a href="{% url 'accounts:signup' %}" class="block w-full bg-orange-600 text-white py-3 rounded-lg font-semibold text-center hover:bg-orange-700 transition">
+                        Demander un service
+                    </a>
+                    <p class="text-center text-xs text-gray-500 mt-2">
+                        Inscription rapide en 1 minute
+                    </p>
+                {% endif %}
+
+                {% if artisan.user.phone %}
+                <div class="mt-4 pt-4 border-t border-gray-100 text-center text-sm">
+                    <p class="text-gray-500 mb-1">Téléphone</p>
+                    <p class="font-medium text-gray-900">{{ artisan.user.phone }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
