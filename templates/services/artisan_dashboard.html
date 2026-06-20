@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Mes missions{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-10">
+    <h1 class="text-3xl font-bold mb-6">Mes missions</h1>
+
+    <!-- Tabs de filtre -->
+    <div class="flex border-b border-gray-200 mb-6 overflow-x-auto">
+        <a href="?" class="px-4 py-2 border-b-2 whitespace-nowrap {% if not status_filter %}border-orange-500 text-orange-600 font-medium{% else %}border-transparent text-gray-600 hover:text-orange-600{% endif %}">
+            Toutes ({{ stats.all }})
+        </a>
+        <a href="?status=PENDING" class="px-4 py-2 border-b-2 whitespace-nowrap {% if status_filter == 'PENDING' %}border-orange-500 text-orange-600 font-medium{% else %}border-transparent text-gray-600 hover:text-orange-600{% endif %}">
+            En attente ({{ stats.pending }})
+        </a>
+        <a href="?status=ACCEPTED" class="px-4 py-2 border-b-2 whitespace-nowrap {% if status_filter == 'ACCEPTED' %}border-orange-500 text-orange-600 font-medium{% else %}border-transparent text-gray-600 hover:text-orange-600{% endif %}">
+            Acceptées ({{ stats.accepted }})
+        </a>
+        <a href="?status=COMPLETED" class="px-4 py-2 border-b-2 whitespace-nowrap {% if status_filter == 'COMPLETED' %}border-orange-500 text-orange-600 font-medium{% else %}border-transparent text-gray-600 hover:text-orange-600{% endif %}">
+            Terminées ({{ stats.completed }})
+        </a>
+    </div>
+
+    <!-- Liste des demandes -->
+    {% if requests_list %}
+    <div class="space-y-3">
+        {% for req in requests_list %}
+            {% include 'services/partials/_request_card_artisan.html' with req=req %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white rounded-2xl p-12 text-center border border-gray-200">
+        <span class="text-6xl">📋</span>
+        <p class="text-gray-500 mt-4">Aucune mission dans cette catégorie.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

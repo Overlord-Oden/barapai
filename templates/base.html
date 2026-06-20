@@ -12,7 +12,7 @@
     <!-- HTMX via CDN -->
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
 
-    <!-- Police Inter (moderne et lisible) -->
+    <!-- Police Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -27,9 +27,8 @@
 
     {% include 'partials/_navbar.html' %}
 
-
     {% if messages %}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 w-full">
         {% for message in messages %}
             <div class="rounded-lg px-4 py-3 mb-2 text-sm
                 {% if message.tags == 'success' %}bg-green-50 border border-green-200 text-green-800
@@ -43,13 +42,18 @@
     {% endif %}
 
     <main class="flex-1">
-
-    <main class="flex-1">
         {% block content %}{% endblock %}
     </main>
 
     {% include 'partials/_footer.html' %}
 
     {% block extra_scripts %}{% endblock %}
+
+    <!-- CSRF global pour HTMX -->
+    <script>
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+        });
+    </script>
 </body>
 </html>

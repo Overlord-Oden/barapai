@@ -7,7 +7,7 @@
                 <span class="text-xl font-bold text-orange-600">Barapai</span>
             </a>
 
-            <!-- Liens -->
+            <!-- Liens centraux -->
             <div class="hidden md:flex items-center gap-6">
                 <a href="{% url 'core:home' %}" class="text-gray-700 hover:text-orange-600 font-medium">
                     Accueil
@@ -15,18 +15,27 @@
                 <a href="{% url 'catalog:artisans_list' %}" class="text-gray-700 hover:text-orange-600 font-medium">
                     Trouver un artisan
                 </a>
-                <a href="#" class="text-gray-700 hover:text-orange-600 font-medium">
+                <a href="{% url 'accounts:signup' %}" class="text-gray-700 hover:text-orange-600 font-medium">
                     Devenir artisan
                 </a>
             </div>
 
-            <!-- Auth -->
+            <!-- Auth section -->
             <div class="flex items-center gap-3">
                 {% if user.is_authenticated %}
-                    <span class="text-sm text-gray-600 hidden sm:inline">{{ user.full_name }}</span>
-                    <a href="{% url 'accounts:logout' %}" class="text-sm text-gray-700 hover:text-orange-600">
-                        Deconnexion
-                    </a>
+                    {% if user.is_client %}
+        <a href="{% url 'services:my_requests' %}" class="text-sm text-gray-700 hover:text-orange-600">
+            Mes demandes
+        </a>
+    {% elif user.is_artisan %}
+        <a href="{% url 'services:artisan_dashboard' %}" class="text-sm text-gray-700 hover:text-orange-600">
+            Mes missions
+        </a>
+    {% endif %}
+    <span class="text-sm text-gray-600 hidden sm:inline">{{ user.full_name }}</span>
+    <a href="{% url 'accounts:logout' %}" class="text-sm text-gray-700 hover:text-orange-600">
+        Deconnexion
+    </a>
                 {% else %}
                     <a href="{% url 'accounts:login' %}" class="text-sm text-gray-700 hover:text-orange-600 font-medium">
                         Connexion
