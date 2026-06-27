@@ -106,3 +106,7 @@ AUTH_USER_MODEL = 'accounts.User'
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'core:home'
 LOGOUT_REDIRECT_URL = 'core:home'
+
+# Email (override en dev.py et prod.py)
+DEFAULT_FROM_EMAIL = 'Barapai <noreply@barapai.ci>'
+EMAIL_SUBJECT_PREFIX = '[Barapai] '

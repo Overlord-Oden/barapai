@@ -1,174 +1,321 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}{{ artisan.user.full_name }}{% endblock %}
+{% block title %}{{ artisan.user.full_name }} · Barapai{% endblock %}
 
 {% block content %}
-<!-- Breadcrumb -->
-<div class="bg-orange-50 border-b border-orange-100">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-        <a href="{% url 'catalog:artisans_list' %}" class="text-sm text-orange-600 hover:underline">
-            ← Retour aux artisans
-        </a>
-    </div>
-</div>
+<section class="bg-background py-12">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
 
-<!-- Hero du profil -->
-<section class="bg-white">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- TOP : profil card + sidebar tarification -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter mb-8">
+
+      <!-- LEFT : profil card (col-span-2) -->
+      <div class="lg:col-span-2 bg-white rounded-xl p-6 md:p-8 profile-shadow">
         <div class="flex flex-col md:flex-row gap-6 items-start">
-            {% if artisan.profile_picture %}
-                <img src="{{ artisan.profile_picture.url }}" alt="{{ artisan.user.full_name }}"
-                     class="w-32 h-32 md:w-40 md:h-40 rounded-2xl object-cover">
-            {% else %}
-                <div class="w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-orange-100 flex items-center justify-center text-6xl">
-                    👷
+
+          <!-- Photo -->
+          <div class="relative shrink-0">
+            <div class="w-32 h-32 rounded-full overflow-hidden bg-surface-container">
+              {% if artisan.profile_picture %}
+                <img src="{{ artisan.profile_picture.url }}" alt="{{ artisan.user.full_name }}" class="w-full h-full object-cover">
+              {% else %}
+                <div class="w-full h-full flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[56px] text-outline-variant">person</span>
                 </div>
+              {% endif %}
+            </div>
+            {% if artisan.is_verified_by_admin %}
+              <div class="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-verified-blue flex items-center justify-center border-2 border-white">
+                <span class="material-symbols-outlined filled-icon text-white text-[18px]">verified</span>
+              </div>
             {% endif %}
+          </div>
 
-            <div class="flex-1">
-                <div class="flex flex-wrap items-start justify-between gap-3 mb-2">
-                    <h1 class="text-3xl font-bold text-gray-900">{{ artisan.user.full_name }}</h1>
-                    {% if artisan.is_available %}
-                        <span class="bg-green-100 text-green-700 text-sm px-3 py-1 rounded-full font-medium">
-                            ● Disponible
-                        </span>
-                    {% else %}
-                        <span class="bg-gray-100 text-gray-500 text-sm px-3 py-1 rounded-full">
-                            Occupé
-                        </span>
-                    {% endif %}
-                </div>
-
-                <p class="text-gray-600 mb-3">
-                    📍 {% if artisan.neighborhood %}{{ artisan.neighborhood }}, {% endif %}{{ artisan.city }}
-                </p>
-
-                <div class="flex flex-wrap gap-2 mb-4">
-                    {% for cat in artisan.categories.all %}
-                        <span class="text-sm bg-orange-50 text-orange-700 px-3 py-1 rounded-full font-medium">
-                            {{ cat.icon }} {{ cat.name }}
-                        </span>
-                    {% endfor %}
-                </div>
-
-                <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
-                    <div>
-                        <span class="text-yellow-500 text-lg">★</span>
-                        <span class="font-semibold">{{ artisan.average_rating|default:"—" }}</span>
-                        <span class="text-gray-500">/ 5</span>
-                    </div>
-                    <div class="text-gray-600">
-                        <strong class="text-gray-900">{{ artisan.total_jobs }}</strong> mission{{ artisan.total_jobs|pluralize }}
-                    </div>
-                    <div class="text-gray-600">
-                        <strong class="text-gray-900">{{ artisan.years_experience }}</strong> an{{ artisan.years_experience|pluralize }} d'expérience
-                    </div>
-                </div>
+          <!-- Infos -->
+          <div class="flex-1 w-full">
+            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-3">
+              <h1 class="font-display text-headline-lg-mobile md:text-headline-lg text-on-surface">{{ artisan.user.full_name }}</h1>
+              {% if artisan.is_verified_by_admin %}
+                <span class="inline-flex items-center gap-1 bg-trust-teal/10 text-trust-teal px-3 py-1.5 rounded-full text-label-sm font-bold shrink-0">
+                  <span class="material-symbols-outlined filled-icon text-[14px]">verified</span>
+                  Artisan vérifié
+                </span>
+              {% endif %}
             </div>
-        </div>
-    </div>
-</section>
 
-<!-- Contenu principal -->
-<section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="grid md:grid-cols-3 gap-8">
-        <!-- Colonne principale -->
-        <div class="md:col-span-2 space-y-8">
-            <!-- Bio -->
-            {% if artisan.bio %}
-            <div>
-                <h2 class="text-xl font-bold text-gray-900 mb-3">À propos</h2>
-                <p class="text-gray-700 whitespace-pre-line">{{ artisan.bio }}</p>
+            <p class="font-sans text-body-md text-on-surface-variant mb-3">
+              {% for c in artisan.categories.all %}{{ c.name }}{% if not forloop.last %} · {% endif %}{% endfor %}
+            </p>
+
+            <div class="flex flex-wrap gap-x-4 gap-y-2 mb-5 text-label-md text-on-surface-variant">
+              <span class="inline-flex items-center gap-1">
+                <span class="material-symbols-outlined filled-icon text-abidjan-orange-vibrant text-[18px]">star</span>
+                <span class="font-bold text-on-surface">{{ artisan.average_rating|default:"—" }}</span>
+                <span class="text-on-surface-variant">({{ reviews|length }} avis)</span>
+              </span>
+              <span class="inline-flex items-center gap-1">
+                <span class="material-symbols-outlined text-[18px]">location_on</span>
+                {{ artisan.city }}{% if artisan.neighborhood %}, {{ artisan.neighborhood }}{% endif %}
+              </span>
             </div>
-            {% endif %}
 
-            <!-- Portfolio -->
-            {% if artisan.portfolio_images.all %}
-            <div>
-                <h2 class="text-xl font-bold text-gray-900 mb-3">Portfolio</h2>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {% for photo in artisan.portfolio_images.all %}
-                    <div class="aspect-square rounded-lg overflow-hidden bg-gray-100">
-                        <img src="{{ photo.image.url }}" alt="{{ photo.caption|default:'Realisation' }}"
-                             class="w-full h-full object-cover hover:scale-105 transition duration-300">
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Avis -->
-            <div>
-                <h2 class="text-xl font-bold text-gray-900 mb-3">
-                    Avis ({{ recent_reviews|length }})
-                </h2>
-                {% if recent_reviews %}
-                <div class="space-y-4">
-                    {% for review in recent_reviews %}
-                    <div class="bg-white border border-gray-200 rounded-lg p-4">
-                        <div class="flex items-start justify-between mb-2">
-                            <div>
-                                <p class="font-medium text-gray-900">{{ review.service_request.client.full_name }}</p>
-                                <p class="text-xs text-gray-500">{{ review.created_at|date:"d M Y" }}</p>
-                            </div>
-                            <div class="text-yellow-500 text-lg font-semibold whitespace-nowrap">
-    ★ {{ review.rating }} <span class="text-xs text-gray-400">/ 5</span>
-</div>
-                        </div>
-                        {% if review.comment %}
-                            <p class="text-sm text-gray-700">{{ review.comment }}</p>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <p class="text-sm text-gray-500 italic">Aucun avis pour le moment.</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Sidebar CTA -->
-        <div>
-            <div class="bg-white border border-gray-200 rounded-2xl p-6 sticky top-20">
-                {% if artisan.hourly_rate %}
-                <div class="text-center mb-4">
-                    <p class="text-sm text-gray-500">À partir de</p>
-                    <p class="text-3xl font-bold text-orange-600">
-                        {{ artisan.hourly_rate }} <span class="text-base">FCFA/h</span>
-                    </p>
-                </div>
-                {% else %}
-                <div class="text-center mb-4">
-                    <p class="text-sm text-gray-500">Tarif</p>
-                    <p class="text-lg font-semibold text-gray-700">Sur devis</p>
-                </div>
-                {% endif %}
-
-                {% if user.is_authenticated and user.is_client %}
-                <a href="{% url 'services:create' artisan_pk=artisan.pk %}" class="block w-full bg-orange-600 text-white py-3 rounded-lg font-semibold text-center hover:bg-orange-700 transition">
-                        Demander un service
+            <div class="flex flex-col sm:flex-row gap-3">
+              {% if user.is_authenticated and user.is_client %}
+                <a href="{% url 'services:create' artisan_pk=artisan.pk %}"
+                   class="inline-flex items-center justify-center gap-2 bg-abidjan-orange-vibrant text-white px-6 py-3 rounded-lg font-sans text-label-md hover:bg-secondary active:scale-95 transition-all">
+                  <span class="material-symbols-outlined">mail</span>
+                  Contacter pour un devis
                 </a>
-                {% elif user.is_authenticated %}
-                    <p class="text-center text-sm text-gray-500 italic">
-                        Connecte-toi en tant que client pour faire une demande.
-                    </p>
-                {% else %}
-                    <a href="{% url 'accounts:signup' %}" class="block w-full bg-orange-600 text-white py-3 rounded-lg font-semibold text-center hover:bg-orange-700 transition">
-                        Demander un service
-                    </a>
-                    <p class="text-center text-xs text-gray-500 mt-2">
-                        Inscription rapide en 1 minute
-                    </p>
-                {% endif %}
-
-                {% if artisan.user.phone %}
-                <div class="mt-4 pt-4 border-t border-gray-100 text-center text-sm">
-                    <p class="text-gray-500 mb-1">Téléphone</p>
-                    <p class="font-medium text-gray-900">{{ artisan.user.phone }}</p>
-                </div>
-                {% endif %}
+              {% else %}
+                <a href="{% url 'accounts:signup' %}"
+                   class="inline-flex items-center justify-center gap-2 bg-abidjan-orange-vibrant text-white px-6 py-3 rounded-lg font-sans text-label-md hover:bg-secondary active:scale-95 transition-all">
+                  <span class="material-symbols-outlined">mail</span>
+                  Contacter pour un devis
+                </a>
+              {% endif %}
+              {% if artisan.user.phone %}
+                <button onclick="document.getElementById('phone').classList.toggle('hidden')"
+                        class="inline-flex items-center justify-center gap-2 bg-surface-container text-on-surface px-6 py-3 rounded-lg font-sans text-label-md hover:bg-surface-container-high transition-all">
+                  <span class="material-symbols-outlined">call</span>
+                  <span id="phone" class="hidden">{{ artisan.user.phone }}</span>
+                  <span>Voir le numéro</span>
+                </button>
+              {% endif %}
             </div>
+          </div>
         </div>
+      </div>
+
+      <!-- RIGHT : tarification sidebar -->
+      <aside class="lg:col-span-1">
+        <div class="bg-primary-container text-white rounded-xl p-6 profile-shadow">
+          <p class="font-sans text-label-sm uppercase tracking-wide text-on-primary-container mb-3">Tarification</p>
+          <div class="flex items-baseline gap-2 mb-4">
+            <span class="font-display text-headline-lg font-bold text-ivory-white">{{ artisan.hourly_rate|default:"—" }}</span>
+            <span class="font-sans text-body-md text-on-primary-container">FCFA / heure</span>
+          </div>
+          <p class="font-sans text-label-sm italic text-on-primary-container mb-6">Devis gratuit après diagnostic.</p>
+
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div>
+              <p class="font-sans text-label-sm flex items-center gap-1 text-abidjan-orange-vibrant mb-1">
+                <span class="material-symbols-outlined filled-icon text-[14px]">bolt</span>
+                Rapidité
+              </p>
+              <p class="font-display text-body-lg font-bold text-ivory-white">Moins de 2h</p>
+              <p class="font-sans text-label-sm text-on-primary-container">Temps de réponse</p>
+            </div>
+            <div>
+              <p class="font-sans text-label-sm flex items-center gap-1 text-trust-teal mb-1">
+                <span class="material-symbols-outlined text-[14px]">check_circle</span>
+                Expérience
+              </p>
+              <p class="font-display text-body-lg font-bold text-ivory-white">{{ artisan.total_jobs|default:0 }}</p>
+              <p class="font-sans text-label-sm text-on-primary-container">Missions réussies</p>
+            </div>
+          </div>
+
+          <div class="space-y-2 pb-6 border-b border-white/10 mb-6 font-sans text-label-md">
+            <div class="flex justify-between text-on-primary-container">
+              <span class="inline-flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">shield</span>Garantie</span>
+              <span class="text-ivory-white font-bold">Oui</span>
+            </div>
+            <div class="flex justify-between text-on-primary-container">
+              <span class="inline-flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span>Disponibilité</span>
+              <span class="text-ivory-white font-bold">{% if artisan.is_available %}7j / 7{% else %}Non dispo{% endif %}</span>
+            </div>
+            <div class="flex justify-between text-on-primary-container">
+              <span class="inline-flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">payments</span>Paiement</span>
+              <span class="text-ivory-white font-bold">Espèces, Mobile Money</span>
+            </div>
+          </div>
+
+          {% if user.is_authenticated and user.is_client %}
+            <a href="{% url 'services:create' artisan_pk=artisan.pk %}"
+               class="block text-center bg-abidjan-orange-vibrant text-white px-6 py-3 rounded-lg font-sans text-label-md font-bold hover:bg-secondary active:scale-95 transition-all">
+              Prendre rendez-vous
+            </a>
+          {% else %}
+            <a href="{% url 'accounts:signup' %}"
+               class="block text-center bg-abidjan-orange-vibrant text-white px-6 py-3 rounded-lg font-sans text-label-md font-bold hover:bg-secondary active:scale-95 transition-all">
+              Prendre rendez-vous
+            </a>
+          {% endif %}
+        </div>
+
+        {% if artisan.is_verified_by_admin %}
+        <div class="bg-white rounded-xl p-5 profile-shadow mt-4 border-l-4 border-trust-teal">
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined filled-icon text-trust-teal">verified_user</span>
+            <div>
+              <p class="font-sans font-bold text-body-md text-on-surface mb-1">Confiance certifiée</p>
+              <p class="font-sans text-label-sm text-on-surface-variant">L'identité et les diplômes de {{ artisan.user.full_name|cut:" "|slice:":8" }} ont été vérifiés par l'équipe Barapai.</p>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </aside>
     </div>
+
+
+    <!-- TABS : À propos / Réalisations / Avis -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter mb-8" x-data="{ tab: '{% if artisan.bio %}about{% elif portfolio_images %}portfolio{% else %}reviews{% endif %}' }">
+      <div class="lg:col-span-2">
+
+        <!-- Tab nav -->
+        <div class="flex gap-1 mb-6 bg-surface-container-low rounded-xl p-1">
+          {% if artisan.bio or artisan.categories.all %}
+          <button @click="tab = 'about'"
+                  :class="tab === 'about' ? 'bg-white shadow-sm text-on-surface font-bold' : 'text-on-surface-variant hover:text-on-surface'"
+                  class="flex-1 py-2.5 px-4 rounded-lg font-sans text-label-md transition-all">
+            <span class="material-symbols-outlined text-[16px] align-middle mr-1">person</span>Profil
+          </button>
+          {% endif %}
+          {% if portfolio_images %}
+          <button @click="tab = 'portfolio'"
+                  :class="tab === 'portfolio' ? 'bg-white shadow-sm text-on-surface font-bold' : 'text-on-surface-variant hover:text-on-surface'"
+                  class="flex-1 py-2.5 px-4 rounded-lg font-sans text-label-md transition-all">
+            <span class="material-symbols-outlined text-[16px] align-middle mr-1">photo_library</span>Réalisations
+          </button>
+          {% endif %}
+          {% if reviews %}
+          <button @click="tab = 'reviews'"
+                  :class="tab === 'reviews' ? 'bg-white shadow-sm text-on-surface font-bold' : 'text-on-surface-variant hover:text-on-surface'"
+                  class="flex-1 py-2.5 px-4 rounded-lg font-sans text-label-md transition-all">
+            <span class="material-symbols-outlined text-[16px] align-middle mr-1">star</span>Avis
+            <span class="ml-1 text-label-sm text-on-surface-variant">({{ reviews|length }})</span>
+          </button>
+          {% endif %}
+        </div>
+
+        <!-- Profil -->
+        <div x-show="tab === 'about'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
+          {% if artisan.bio %}
+          <div class="bg-white rounded-xl p-6 profile-shadow">
+            <h2 class="font-display text-headline-md text-on-surface mb-3">À propos</h2>
+            <p class="font-sans text-body-md text-on-surface whitespace-pre-line">{{ artisan.bio }}</p>
+          </div>
+          {% endif %}
+
+          {% if artisan.categories.all %}
+          <div>
+            <h2 class="font-display text-headline-md text-on-surface mb-4">Spécialités</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3" data-stagger>
+              {% for c in artisan.categories.all|slice:":3" %}
+              <div class="bg-white rounded-xl p-5 profile-shadow border-t-4 border-abidjan-orange-vibrant">
+                <span class="material-symbols-outlined text-[28px] text-abidjan-orange-vibrant mb-3 block">
+                  {% if c.slug == 'plombier' %}plumbing
+                  {% elif c.slug == 'electricien' %}bolt
+                  {% elif c.slug == 'menuisier' %}carpenter
+                  {% elif c.slug == 'mecanicien' %}car_repair
+                  {% elif c.slug == 'coiffeuse' %}content_cut
+                  {% elif c.slug == 'peintre' %}brush
+                  {% elif c.slug == 'macon' %}construction
+                  {% elif c.slug == 'couturiere' %}checkroom
+                  {% else %}build{% endif %}
+                </span>
+                <h3 class="font-display text-body-lg font-bold text-on-surface mb-1">{{ c.name }}</h3>
+                <p class="font-sans text-label-sm text-on-surface-variant font-normal">{{ c.description|default:"Expert qualifié."|truncatewords:15 }}</p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Réalisations -->
+        <div x-show="tab === 'portfolio'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-cloak>
+          {% if portfolio_images %}
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {% for img in portfolio_images %}
+            <div class="aspect-square rounded-xl overflow-hidden bg-surface-container cursor-zoom-in"
+                 @click="$dispatch('lightbox', { src: '{{ img.image.url }}', caption: '{{ img.caption|default:"Réalisation" }}' })">
+              <img src="{{ img.image.url }}" alt="{{ img.caption|default:'Réalisation' }}"
+                   class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-16 bg-white rounded-xl profile-shadow">
+            <span class="material-symbols-outlined text-[48px] text-outline-variant block mb-3">photo_library</span>
+            <p class="font-sans text-body-md text-on-surface-variant">Aucune réalisation pour l'instant.</p>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Avis -->
+        <div x-show="tab === 'reviews'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-cloak>
+          {% if reviews %}
+          <div class="space-y-3">
+            {% for r in reviews %}
+            <div class="bg-white rounded-xl p-5 profile-shadow" data-reveal>
+              <div class="flex justify-between items-start mb-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-primary-container text-ivory-white flex items-center justify-center font-bold text-label-md">
+                    {{ r.service_request.client.full_name|slice:":2"|upper }}
+                  </div>
+                  <div>
+                    <p class="font-sans font-bold text-body-md text-on-surface">{{ r.service_request.client.full_name }}</p>
+                    <p class="font-sans text-label-sm text-on-surface-variant">{{ r.created_at|date:"d M Y" }}</p>
+                  </div>
+                </div>
+                <div class="flex gap-0.5">
+                  {% for i in "12345" %}
+                  <span class="material-symbols-outlined text-[16px] {% if forloop.counter <= r.rating %}filled-icon text-abidjan-orange-vibrant{% else %}text-outline-variant{% endif %}">star</span>
+                  {% endfor %}
+                </div>
+              </div>
+              <p class="font-sans text-body-md text-on-surface italic">"{{ r.comment }}"</p>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-16 bg-white rounded-xl profile-shadow">
+            <span class="material-symbols-outlined text-[48px] text-outline-variant block mb-3">rate_review</span>
+            <p class="font-sans text-body-md text-on-surface-variant">Pas encore d'avis pour cet artisan.</p>
+          </div>
+          {% endif %}
+        </div>
+
+      </div>
+
+      <!-- Zone d'intervention -->
+      <aside class="lg:col-span-1">
+        <div class="bg-white rounded-xl p-5 profile-shadow">
+          <h3 class="font-display text-body-lg font-bold text-on-surface mb-3 flex items-center gap-2">
+            <span class="material-symbols-outlined text-abidjan-orange-vibrant">map</span>
+            Zone d'intervention
+          </h3>
+          <div class="aspect-square bg-surface-container rounded-lg mb-3 flex items-center justify-center">
+            <div class="text-center">
+              <span class="material-symbols-outlined text-[48px] text-outline-variant">location_on</span>
+              <p class="font-sans text-label-md text-on-surface-variant mt-2">{{ artisan.city }}</p>
+            </div>
+          </div>
+          <p class="font-sans text-label-md text-on-surface-variant font-normal">
+            Intervient principalement à <span class="font-bold text-on-surface">{{ artisan.city }}</span>{% if artisan.neighborhood %} et alentours ({{ artisan.neighborhood }}){% endif %}.
+          </p>
+        </div>
+      </aside>
+    </div>
+
+  </div>
 </section>
+
+<!-- Lightbox portfolio -->
+<div x-data="{ open: false, src: '', caption: '' }"
+     @lightbox.window="open = true; src = $event.detail.src; caption = $event.detail.caption"
+     @keydown.escape.window="open = false"
+     x-show="open" x-cloak
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+     @click.self="open = false">
+  <div class="relative max-w-4xl w-full">
+    <button @click="open = false" class="absolute -top-10 right-0 text-white/80 hover:text-white">
+      <span class="material-symbols-outlined text-[32px]">close</span>
+    </button>
+    <img :src="src" :alt="caption" class="w-full max-h-[80vh] object-contain rounded-xl">
+    <p x-text="caption" x-show="caption" class="text-center text-white/70 text-label-md mt-3"></p>
+  </div>
+</div>
 {% endblock %}

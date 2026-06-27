@@ -1,75 +1,592 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Accueil{% endblock %}
+{% block title %}Barapai · Trouve ton artisan de confiance à Abidjan{% endblock %}
 
 {% block content %}
-<!-- Hero -->
-<section class="bg-gradient-to-br from-orange-500 to-orange-700 text-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 text-center">
-        <h1 class="text-4xl md:text-6xl font-bold mb-4">
-            Trouve <span class="underline decoration-yellow-300">ton boss</span> 🔧
-        </h1>
-        <p class="text-xl md:text-2xl mb-8 text-orange-100">
-            Plombier, électricien, menuisier... les artisans d'Abidjan à portée de clic.
+
+<!-- ═══════════════════════════════════════
+     HERO — Split 2 colonnes premium
+     ═══════════════════════════════════════ -->
+<section class="relative bg-primary-container overflow-hidden" style="min-height:88vh;display:flex;align-items:center;">
+
+  <!-- Décors de fond -->
+  <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+    <div class="absolute -top-40 -right-40 w-[700px] h-[700px] bg-abidjan-orange-vibrant/8 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-56 -left-32 w-[600px] h-[600px] bg-verified-blue/6 rounded-full blur-3xl"></div>
+    <div class="absolute inset-0 opacity-[0.025]"
+         style="background-image:linear-gradient(rgba(255,255,255,.4) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.4) 1px,transparent 1px);background-size:48px 48px;"></div>
+  </div>
+
+  <div class="relative max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-16 w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20 items-center">
+
+      <!-- ── Colonne gauche ── -->
+      <div class="space-y-7 z-10">
+
+        <!-- Badge live (chiffre marketing fixe — pas la vraie DB) -->
+        <div class="inline-flex items-center gap-2.5 bg-white/8 border border-white/10 px-4 py-2 rounded-full backdrop-blur-sm">
+          <span class="relative flex h-2.5 w-2.5 shrink-0">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-abidjan-orange-vibrant opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-abidjan-orange-vibrant"></span>
+          </span>
+          <span class="font-sans text-label-md text-white/85">
+            <strong>1 500+</strong> artisans inscrits à Abidjan
+          </span>
+        </div>
+
+        <!-- Titre -->
+        <div class="space-y-4">
+          <h1 class="font-display font-bold text-white leading-[1.05] tracking-tight"
+              style="font-size:clamp(2.4rem,5vw,3.8rem)">
+            Trouve l'artisan<br>
+            <span class="text-abidjan-orange-vibrant">de confiance</span><br>
+            <span class="text-white/90">à Abidjan</span>
+          </h1>
+          <p class="font-sans text-white/65 leading-relaxed max-w-lg" style="font-size:1.1rem">
+            Plombier, électricien, menuisier… Vérifiés, notés et prêts à intervenir dans ta commune en moins de 24h.
+          </p>
+        </div>
+
+        <!-- Barre de recherche — proportions corrigées -->
+        <div class="space-y-3">
+          <form action="{% url 'catalog:artisans_list' %}" method="get"
+                class="bg-white rounded-2xl overflow-hidden border border-white/5"
+                style="box-shadow:0 25px 60px -10px rgba(0,0,0,.55),0 0 0 1px rgba(249,115,22,.12)">
+            <div class="flex items-center">
+              <!-- Champ texte (prioritaire, flex:2 > commune) -->
+              <div class="flex items-center gap-3 px-5 py-4 md:py-5 min-w-0" style="flex:2">
+                <span class="material-symbols-outlined text-abidjan-orange-vibrant shrink-0" style="font-size:24px">search</span>
+                <input type="text" name="q"
+                       placeholder="Quel artisan cherches-tu ?"
+                       autocomplete="off"
+                       class="w-full outline-none font-sans text-on-surface bg-transparent"
+                       style="font-size:1rem">
+              </div>
+              <!-- Commune (largeur fixe) -->
+              <div class="hidden md:flex items-center gap-2 border-l border-outline-variant/30 px-4 py-4 md:py-5 shrink-0" style="width:165px">
+                <span class="material-symbols-outlined text-on-surface-variant shrink-0" style="font-size:18px">location_on</span>
+                <select name="city" class="outline-none font-sans text-on-surface-variant bg-transparent cursor-pointer w-full" style="font-size:.875rem">
+                  <option value="">Commune</option>
+                  <option>Cocody</option><option>Yopougon</option>
+                  <option>Marcory</option><option>Plateau</option><option>Riviera</option>
+                </select>
+              </div>
+              <!-- Bouton -->
+              <div class="p-2">
+                <button type="submit"
+                        class="bg-abidjan-orange-vibrant text-white px-6 py-3.5 rounded-xl font-sans font-bold hover:bg-secondary active:scale-[.97] transition-all flex items-center gap-2 whitespace-nowrap"
+                        style="font-size:.875rem">
+                  <span class="hidden sm:inline">Rechercher</span>
+                  <span class="material-symbols-outlined" style="font-size:20px">arrow_forward</span>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Pills : max 4 pour éviter l'orphelin -->
+          <div class="flex items-center gap-2 flex-nowrap overflow-x-auto pb-0.5">
+            <span class="font-sans text-white/40 shrink-0" style="font-size:.75rem">Tendance :</span>
+            {% for cat in categories|slice:":4" %}
+            <a href="{% url 'catalog:artisans_list' %}?category={{ cat.slug }}"
+               class="flex items-center gap-1.5 bg-white/6 hover:bg-abidjan-orange-vibrant border border-white/10 hover:border-abidjan-orange-vibrant text-white/70 hover:text-white px-3 py-1.5 rounded-full transition-all duration-200 shrink-0"
+               style="font-size:.75rem">
+              <span class="material-symbols-outlined" style="font-size:13px">
+                {% if cat.slug == 'plombier' %}plumbing
+                {% elif cat.slug == 'electricien' %}bolt
+                {% elif cat.slug == 'menuisier' %}carpenter
+                {% elif cat.slug == 'mecanicien' %}car_repair
+                {% elif cat.slug == 'peintre' %}brush
+                {% else %}build{% endif %}
+              </span>
+              {{ cat.name }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Trust badges — grille 2×2, zéro orphelin -->
+        <div class="grid grid-cols-2 gap-x-6 gap-y-3 pt-1">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined filled-icon text-trust-teal" style="font-size:17px">verified</span>
+            <span class="font-sans text-white/60" style="font-size:.8rem">Artisans vérifiés</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined filled-icon text-abidjan-orange-vibrant" style="font-size:17px">star</span>
+            <span class="font-sans text-white/60" style="font-size:.8rem">Note 4.8 / 5</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-verified-blue" style="font-size:17px">shield</span>
+            <span class="font-sans text-white/60" style="font-size:.8rem">Garantie satisfaction</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-abidjan-orange-vibrant" style="font-size:17px">payments</span>
+            <span class="font-sans text-white/60" style="font-size:.8rem">Mobile Money accepté</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Colonne droite : CSS Grid mosaic (remplit toute la hauteur) ── -->
+      <div class="hidden lg:block relative" style="height:520px">
+
+        <!-- Grille 2 cols × 2 lignes, col droite span 2 → zéro espace mort -->
+        <div style="display:grid;grid-template-columns:1fr 1.2fr;grid-template-rows:1fr 1fr;gap:10px;position:absolute;inset:0;border-radius:1rem;overflow:hidden">
+
+          <!-- Haut gauche : menuisier -->
+          <div style="border-radius:.875rem;overflow:hidden;outline:5px solid #141b2b">
+            <img src="{% static 'img/artisans/carpenter.jpg' %}" alt="Menuisier Abidjan"
+                 class="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700">
+          </div>
+
+          <!-- Droite (spans 2 lignes) : électricien -->
+          <div style="grid-row:1/3;border-radius:.875rem;overflow:hidden;outline:5px solid #141b2b">
+            <img src="{% static 'img/artisans/electrician.jpg' %}" alt="Électricien Abidjan"
+                 class="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-700">
+          </div>
+
+          <!-- Bas gauche : plombier -->
+          <div style="border-radius:.875rem;overflow:hidden;outline:5px solid #141b2b">
+            <img src="{% static 'img/artisans/plumber.jpg' %}" alt="Plombier Abidjan"
+                 class="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700">
+          </div>
+
+        </div>
+
+        <!-- Floating card : artisans actifs (chiffres marketing) -->
+        <div class="absolute bg-white rounded-2xl px-4 py-3 shadow-2xl flex items-center gap-3 z-20"
+             style="left:-20px;top:50%;transform:translateY(-50%);border:1px solid rgba(0,0,0,.05)">
+          <div class="flex -space-x-2">
+            <div class="w-9 h-9 rounded-full border-2 border-white bg-abidjan-orange-vibrant/20 flex items-center justify-center font-bold text-abidjan-orange-vibrant" style="font-size:.75rem">K</div>
+            <div class="w-9 h-9 rounded-full border-2 border-white bg-trust-teal/20 flex items-center justify-center font-bold text-trust-teal" style="font-size:.75rem">A</div>
+            <div class="w-9 h-9 rounded-full border-2 border-white bg-verified-blue/20 flex items-center justify-center font-bold text-verified-blue" style="font-size:.75rem">M</div>
+          </div>
+          <div>
+            <p class="font-display font-bold text-on-surface leading-none" style="font-size:.95rem">500+ actifs</p>
+            <p class="font-sans text-on-surface-variant leading-none mt-1" style="font-size:.7rem">en ce moment</p>
+          </div>
+        </div>
+
+        <!-- Floating card : note -->
+        <div class="absolute bg-white rounded-2xl px-4 py-3 shadow-2xl z-20"
+             style="right:-4px;bottom:22%;border:1px solid rgba(0,0,0,.05)">
+          <div class="flex items-center gap-0.5 mb-1">
+            {% for i in "12345" %}
+            <span class="material-symbols-outlined filled-icon text-abidjan-orange-vibrant" style="font-size:14px">star</span>
+            {% endfor %}
+          </div>
+          <p class="font-display font-bold text-on-surface leading-none" style="font-size:1rem">4.8 / 5</p>
+          <p class="font-sans text-on-surface-variant mt-0.5" style="font-size:.7rem">+240 avis vérifiés</p>
+        </div>
+
+        <!-- Badge vérifié Barapai -->
+        <div class="absolute bg-trust-teal text-white rounded-xl px-3 py-2 shadow-lg flex items-center gap-1.5 z-20"
+             style="left:36%;top:46%">
+          <span class="material-symbols-outlined filled-icon" style="font-size:15px">verified</span>
+          <span class="font-sans font-bold" style="font-size:.75rem">Vérifié Barapai</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Vague de transition -->
+  <div class="absolute bottom-0 left-0 right-0 leading-none" aria-hidden="true">
+    <svg viewBox="0 0 1440 56" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="display:block;width:100%;height:56px">
+      <path d="M0,56 L1440,56 L1440,28 C1200,56 960,4 720,24 C480,44 240,0 0,28 Z" fill="#f8f9fa"/>
+    </svg>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     STATS — Cartes animées
+     ═══════════════════════════════════════ -->
+<section class="bg-background py-16">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-5" data-stagger>
+
+      <div class="bg-white rounded-2xl p-6 profile-shadow text-center group hover:border-abidjan-orange-vibrant/40 border border-transparent transition-all duration-300 hover:-translate-y-1 cursor-default">
+        <div class="w-13 h-13 bg-abidjan-orange-vibrant/10 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-abidjan-orange-vibrant group-hover:scale-110 transition-all duration-300" style="width:52px;height:52px">
+          <span class="material-symbols-outlined text-abidjan-orange-vibrant group-hover:text-white transition-colors">groups</span>
+        </div>
+        <p class="font-display font-bold text-on-surface mb-1" style="font-size:2rem;line-height:1"
+           data-count="{{ total_artisans }}" data-suffix="+">{{ total_artisans }}+</p>
+        <p class="font-sans text-on-surface-variant" style="font-size:.8rem">Artisans vérifiés</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 profile-shadow text-center group hover:border-abidjan-orange-vibrant/40 border border-transparent transition-all duration-300 hover:-translate-y-1 cursor-default">
+        <div class="bg-abidjan-orange-vibrant/10 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-abidjan-orange-vibrant group-hover:scale-110 transition-all duration-300" style="width:52px;height:52px">
+          <span class="material-symbols-outlined filled-icon text-abidjan-orange-vibrant group-hover:text-white transition-colors">star</span>
+        </div>
+        <p class="font-display font-bold text-on-surface mb-1" style="font-size:2rem;line-height:1">
+          4.8<span class="text-on-surface-variant" style="font-size:1.1rem">/5</span>
         </p>
-        <p class="italic text-orange-200 mb-10">"Seul le travail paie."</p>
+        <p class="font-sans text-on-surface-variant" style="font-size:.8rem">Note moyenne</p>
+      </div>
 
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{% url 'catalog:artisans_list' %}" 
-   class="bg-white text-orange-700 px-8 py-3 rounded-lg font-semibold hover:bg-orange-50 transition">
-    Trouver un artisan
-</a>
-            <a href="#" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-orange-700 transition">
-                Devenir artisan
-            </a>
+      <div class="bg-white rounded-2xl p-6 profile-shadow text-center group hover:border-trust-teal/40 border border-transparent transition-all duration-300 hover:-translate-y-1 cursor-default">
+        <div class="bg-trust-teal/10 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-trust-teal group-hover:scale-110 transition-all duration-300" style="width:52px;height:52px">
+          <span class="material-symbols-outlined text-trust-teal group-hover:text-white transition-colors">bolt</span>
         </div>
-    </div>
-</section>
+        <p class="font-display font-bold text-on-surface mb-1" style="font-size:2rem;line-height:1">
+          24<span class="text-on-surface-variant" style="font-size:1.1rem">h</span>
+        </p>
+        <p class="font-sans text-on-surface-variant" style="font-size:.8rem">Délai de réponse</p>
+      </div>
 
-<!-- Categories -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <h2 class="text-3xl font-bold text-center mb-2">Nos catégories de métiers</h2>
-    <p class="text-center text-gray-600 mb-10">Choisis le métier dont tu as besoin</p>
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {% for category in categories %}
-            <a href="#" class="bg-white rounded-xl p-6 text-center hover:shadow-lg transition border border-gray-200 hover:border-orange-300">
-                <div class="text-4xl mb-2">{{ category.icon|default:"🔧" }}</div>
-                <h3 class="font-semibold text-gray-900">{{ category.name }}</h3>
-                <p class="text-xs text-gray-500 mt-1">
-                    {{ category.artisans.count }} artisan{{ category.artisans.count|pluralize:"s" }}
-                </p>
-            </a>
-        {% empty %}
-            <p class="col-span-full text-center text-gray-500">
-                Aucune catégorie pour l'instant.
-            </p>
-        {% endfor %}
-    </div>
-</section>
-
-<!-- How it works -->
-<section class="bg-white py-16">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-3xl font-bold text-center mb-10">Comment ça marche</h2>
-
-        <div class="grid md:grid-cols-3 gap-8">
-            <div class="text-center">
-                <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">1</div>
-                <h3 class="font-semibold mb-2">Cherche</h3>
-                <p class="text-gray-600 text-sm">Filtre par métier, quartier et budget.</p>
-            </div>
-            <div class="text-center">
-                <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">2</div>
-                <h3 class="font-semibold mb-2">Contacte</h3>
-                <p class="text-gray-600 text-sm">Envoie ta demande directement à l'artisan.</p>
-            </div>
-            <div class="text-center">
-                <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">3</div>
-                <h3 class="font-semibold mb-2">Évalue</h3>
-                <p class="text-gray-600 text-sm">Note ton expérience après la mission.</p>
-            </div>
+      <div class="bg-white rounded-2xl p-6 profile-shadow text-center group hover:border-verified-blue/40 border border-transparent transition-all duration-300 hover:-translate-y-1 cursor-default">
+        <div class="bg-verified-blue/10 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-verified-blue group-hover:scale-110 transition-all duration-300" style="width:52px;height:52px">
+          <span class="material-symbols-outlined text-verified-blue group-hover:text-white transition-colors">location_city</span>
         </div>
+        <p class="font-display font-bold text-on-surface mb-1" style="font-size:2rem;line-height:1"
+           data-count="12" data-suffix="">12</p>
+        <p class="font-sans text-on-surface-variant" style="font-size:.8rem">Communes couvertes</p>
+      </div>
+
     </div>
+  </div>
 </section>
+
+
+<!-- ═══════════════════════════════════════
+     CATÉGORIES
+     ═══════════════════════════════════════ -->
+<section class="bg-surface-container-low py-20">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+    <div class="flex justify-between items-end mb-12" data-reveal>
+      <div>
+        <p class="font-sans text-abidjan-orange-vibrant font-bold mb-2" style="font-size:.8rem;letter-spacing:.08em;text-transform:uppercase">Métiers disponibles</p>
+        <h2 class="font-display font-bold text-on-surface" style="font-size:2rem">Tous les corps de métier</h2>
+        <p class="font-sans text-on-surface-variant mt-2">Choisis la spécialité dont tu as besoin</p>
+      </div>
+      <a href="{% url 'catalog:artisans_list' %}"
+         class="hidden md:inline-flex items-center gap-2 bg-white border border-outline-variant/40 text-on-surface hover:border-abidjan-orange-vibrant hover:text-abidjan-orange-vibrant px-5 py-2.5 rounded-xl font-sans transition-all profile-shadow"
+         style="font-size:.875rem">
+        Voir tout
+        <span class="material-symbols-outlined" style="font-size:18px">arrow_forward</span>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" data-stagger>
+      {% for cat in categories %}
+      <a href="{% url 'catalog:artisans_list' %}?category={{ cat.slug }}"
+         class="group bg-white rounded-2xl p-5 profile-shadow hover:shadow-lg border border-transparent hover:border-abidjan-orange-vibrant/30 hover:-translate-y-1 transition-all duration-200">
+        <div class="w-12 h-12 bg-surface-container rounded-xl flex items-center justify-center mb-4 group-hover:bg-abidjan-orange-vibrant transition-all duration-200">
+          <span class="material-symbols-outlined text-on-surface-variant group-hover:text-white transition-colors" style="font-size:24px">
+            {% if cat.slug == 'plombier' %}plumbing
+            {% elif cat.slug == 'electricien' %}bolt
+            {% elif cat.slug == 'menuisier' %}carpenter
+            {% elif cat.slug == 'mecanicien' %}car_repair
+            {% elif cat.slug == 'coiffeuse' %}content_cut
+            {% elif cat.slug == 'peintre' %}brush
+            {% elif cat.slug == 'macon' %}construction
+            {% elif cat.slug == 'couturiere' %}checkroom
+            {% else %}build{% endif %}
+          </span>
+        </div>
+        <h3 class="font-display font-bold text-on-surface mb-1 group-hover:text-abidjan-orange-vibrant transition-colors" style="font-size:1rem">{{ cat.name }}</h3>
+        <p class="font-sans text-on-surface-variant" style="font-size:.75rem">
+          {{ cat.artisan_count }} artisan{{ cat.artisan_count|pluralize }} dispo
+        </p>
+        <div class="mt-3 flex items-center gap-1 text-abidjan-orange-vibrant opacity-0 group-hover:opacity-100 transition-opacity" style="font-size:.75rem">
+          <span class="font-sans font-bold">Explorer</span>
+          <span class="material-symbols-outlined" style="font-size:14px">arrow_forward</span>
+        </div>
+      </a>
+      {% empty %}
+      <p class="col-span-full text-on-surface-variant text-center py-12">Aucune catégorie pour l'instant.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     COMMENT ÇA MARCHE
+     ═══════════════════════════════════════ -->
+<section class="bg-background py-20">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+    <div class="text-center max-w-xl mx-auto mb-16" data-reveal>
+      <p class="font-sans text-abidjan-orange-vibrant font-bold mb-2" style="font-size:.8rem;letter-spacing:.08em;text-transform:uppercase">Simple & rapide</p>
+      <h2 class="font-display font-bold text-on-surface" style="font-size:2rem">Comment ça marche ?</h2>
+      <p class="font-sans text-on-surface-variant mt-3">Trois étapes pour trouver ton artisan de confiance</p>
+    </div>
+
+    <div class="relative">
+      <!-- Ligne de connexion (desktop) -->
+      <div class="hidden md:block absolute top-10 left-1/6 right-1/6 h-px bg-gradient-to-r from-transparent via-outline-variant/60 to-transparent" style="top:40px"></div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8" data-stagger>
+
+        <div class="relative bg-white rounded-2xl p-8 profile-shadow text-center group hover:-translate-y-1 transition-all duration-300">
+          <div class="w-16 h-16 rounded-2xl bg-abidjan-orange-vibrant text-white flex items-center justify-center mx-auto mb-6 shadow-lg shadow-abidjan-orange-vibrant/30 group-hover:scale-110 transition-transform" style="font-size:1.5rem;font-family:'Hanken Grotesk',sans-serif;font-weight:800">1</div>
+          <span class="material-symbols-outlined text-abidjan-orange-vibrant block mb-3" style="font-size:32px">search</span>
+          <h3 class="font-display font-bold text-on-surface mb-3" style="font-size:1.1rem">Cherche</h3>
+          <p class="font-sans text-on-surface-variant leading-relaxed" style="font-size:.9rem">Décris ton besoin ou choisis un métier. Filtre par commune et budget.</p>
+        </div>
+
+        <div class="relative bg-white rounded-2xl p-8 profile-shadow text-center group hover:-translate-y-1 transition-all duration-300">
+          <div class="w-16 h-16 rounded-2xl bg-abidjan-orange-vibrant text-white flex items-center justify-center mx-auto mb-6 shadow-lg shadow-abidjan-orange-vibrant/30 group-hover:scale-110 transition-transform" style="font-size:1.5rem;font-family:'Hanken Grotesk',sans-serif;font-weight:800">2</div>
+          <span class="material-symbols-outlined text-abidjan-orange-vibrant block mb-3" style="font-size:32px">compare_arrows</span>
+          <h3 class="font-display font-bold text-on-surface mb-3" style="font-size:1.1rem">Compare</h3>
+          <p class="font-sans text-on-surface-variant leading-relaxed" style="font-size:.9rem">Consulte les profils, portfolios et avis clients. Artisans 100% vérifiés.</p>
+        </div>
+
+        <div class="relative bg-white rounded-2xl p-8 profile-shadow text-center group hover:-translate-y-1 transition-all duration-300">
+          <div class="w-16 h-16 rounded-2xl bg-abidjan-orange-vibrant text-white flex items-center justify-center mx-auto mb-6 shadow-lg shadow-abidjan-orange-vibrant/30 group-hover:scale-110 transition-transform" style="font-size:1.5rem;font-family:'Hanken Grotesk',sans-serif;font-weight:800">3</div>
+          <span class="material-symbols-outlined text-abidjan-orange-vibrant block mb-3" style="font-size:32px">handshake</span>
+          <h3 class="font-display font-bold text-on-surface mb-3" style="font-size:1.1rem">Réserve</h3>
+          <p class="font-sans text-on-surface-variant leading-relaxed" style="font-size:.9rem">Envoie ta demande. Réponse en moins de 24h. Paye par Mobile Money.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SOCIAL PROOF — Témoignages
+     ═══════════════════════════════════════ -->
+<section class="bg-surface-container-low py-20">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4" data-reveal>
+      <div>
+        <p class="font-sans text-abidjan-orange-vibrant font-bold mb-2" style="font-size:.8rem;letter-spacing:.08em;text-transform:uppercase">Ils nous font confiance</p>
+        <h2 class="font-display font-bold text-on-surface" style="font-size:2rem">Ce que disent nos clients</h2>
+      </div>
+      <div class="flex items-center gap-3 bg-white px-5 py-3 rounded-2xl profile-shadow shrink-0">
+        <div class="flex gap-0.5">
+          {% for i in "12345" %}<span class="material-symbols-outlined filled-icon text-abidjan-orange-vibrant" style="font-size:16px">star</span>{% endfor %}
+        </div>
+        <p class="font-display font-bold text-on-surface" style="font-size:1.1rem">4.8<span class="font-sans text-on-surface-variant font-normal" style="font-size:.875rem">/5</span></p>
+        <span class="text-outline-variant">·</span>
+        <p class="font-sans text-on-surface-variant" style="font-size:.8rem">+240 avis</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5" data-stagger>
+
+      <!-- Témoignage 1 -->
+      <div class="bg-white rounded-2xl p-6 profile-shadow flex flex-col gap-4">
+        <div class="flex gap-0.5">
+          {% for i in "12345" %}<span class="material-symbols-outlined filled-icon text-abidjan-orange-vibrant" style="font-size:14px">star</span>{% endfor %}
+        </div>
+        <p class="font-sans text-on-surface leading-relaxed flex-1" style="font-size:.9rem">
+          "J'ai trouvé un électricien sérieux en moins d'une heure. Il est venu le lendemain, travail impeccable. Je recommande Barapai à 100%."
+        </p>
+        <div class="flex items-center gap-3 pt-3 border-t border-outline-variant/20">
+          <div class="w-10 h-10 rounded-full bg-verified-blue/15 flex items-center justify-center font-bold text-verified-blue shrink-0" style="font-size:.8rem">AK</div>
+          <div>
+            <p class="font-sans font-bold text-on-surface" style="font-size:.875rem">Ama Kouassi</p>
+            <p class="font-sans text-on-surface-variant" style="font-size:.75rem">Cocody · Cliente</p>
+          </div>
+          <span class="ml-auto">
+            <span class="material-symbols-outlined filled-icon text-trust-teal" style="font-size:18px">verified</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Témoignage 2 -->
+      <div class="bg-white rounded-2xl p-6 profile-shadow flex flex-col gap-4">
+        <div class="flex gap-0.5">
+          {% for i in "12345" %}<span class="material-symbols-outlined filled-icon text-abidjan-orange-vibrant" style="font-size:14px">star</span>{% endfor %}
+        </div>
+        <p class="font-sans text-on-surface leading-relaxed flex-1" style="font-size:.9rem">
+          "Depuis que je suis sur Barapai, j'ai 3× plus de clients. Le dashboard est simple et les demandes arrivent directement. Super plateforme."
+        </p>
+        <div class="flex items-center gap-3 pt-3 border-t border-outline-variant/20">
+          <div class="w-10 h-10 rounded-full bg-abidjan-orange-vibrant/15 flex items-center justify-center font-bold text-abidjan-orange-vibrant shrink-0" style="font-size:.8rem">KY</div>
+          <div>
+            <p class="font-sans font-bold text-on-surface" style="font-size:.875rem">Konan Yao</p>
+            <p class="font-sans text-on-surface-variant" style="font-size:.75rem">Yopougon · Menuisier</p>
+          </div>
+          <span class="ml-auto">
+            <span class="material-symbols-outlined filled-icon text-trust-teal" style="font-size:18px">verified</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Témoignage 3 -->
+      <div class="bg-white rounded-2xl p-6 profile-shadow flex flex-col gap-4">
+        <div class="flex gap-0.5">
+          {% for i in "12345" %}<span class="material-symbols-outlined filled-icon text-abidjan-orange-vibrant" style="font-size:14px">star</span>{% endfor %}
+        </div>
+        <p class="font-sans text-on-surface leading-relaxed flex-1" style="font-size:.9rem">
+          "Plomberie urgente un samedi soir. En 20 minutes j'avais un artisan confirmé. Prix affiché, pas de mauvaise surprise. Merci Barapai."
+        </p>
+        <div class="flex items-center gap-3 pt-3 border-t border-outline-variant/20">
+          <div class="w-10 h-10 rounded-full bg-trust-teal/15 flex items-center justify-center font-bold text-trust-teal shrink-0" style="font-size:.8rem">MD</div>
+          <div>
+            <p class="font-sans font-bold text-on-surface" style="font-size:.875rem">Marie Diallo</p>
+            <p class="font-sans text-on-surface-variant" style="font-size:.75rem">Plateau · Cliente</p>
+          </div>
+          <span class="ml-auto">
+            <span class="material-symbols-outlined filled-icon text-trust-teal" style="font-size:18px">verified</span>
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     POURQUOI BARAPAI
+     ═══════════════════════════════════════ -->
+<section class="bg-background py-20">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center" data-reveal>
+
+      <!-- Texte -->
+      <div class="space-y-8">
+        <div>
+          <p class="font-sans text-abidjan-orange-vibrant font-bold mb-2" style="font-size:.8rem;letter-spacing:.08em;text-transform:uppercase">Notre différence</p>
+          <h2 class="font-display font-bold text-on-surface" style="font-size:2rem">Pourquoi choisir Barapai ?</h2>
+          <p class="font-sans text-on-surface-variant mt-3 leading-relaxed">
+            Marre des artisans fantômes, des prix gonflés et du travail bâclé ? Barapai apporte enfin la confiance qui manquait au secteur à Abidjan.
+          </p>
+        </div>
+
+        <div class="space-y-5">
+          <div class="flex items-start gap-4 p-4 rounded-xl hover:bg-surface-container-low transition-colors group">
+            <div class="w-11 h-11 rounded-xl bg-trust-teal/10 flex items-center justify-center shrink-0 group-hover:bg-trust-teal group-hover:scale-105 transition-all">
+              <span class="material-symbols-outlined filled-icon text-trust-teal group-hover:text-white transition-colors">verified</span>
+            </div>
+            <div>
+              <h4 class="font-sans font-bold text-on-surface mb-1">Artisans 100% vérifiés</h4>
+              <p class="font-sans text-on-surface-variant" style="font-size:.875rem">Identité, diplômes et assurance vérifiés manuellement par notre équipe.</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4 p-4 rounded-xl hover:bg-surface-container-low transition-colors group">
+            <div class="w-11 h-11 rounded-xl bg-abidjan-orange-vibrant/10 flex items-center justify-center shrink-0 group-hover:bg-abidjan-orange-vibrant group-hover:scale-105 transition-all">
+              <span class="material-symbols-outlined filled-icon text-abidjan-orange-vibrant group-hover:text-white transition-colors">star</span>
+            </div>
+            <div>
+              <h4 class="font-sans font-bold text-on-surface mb-1">Avis clients authentiques</h4>
+              <p class="font-sans text-on-surface-variant" style="font-size:.875rem">Seuls les clients ayant utilisé le service peuvent laisser un avis.</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4 p-4 rounded-xl hover:bg-surface-container-low transition-colors group">
+            <div class="w-11 h-11 rounded-xl bg-verified-blue/10 flex items-center justify-center shrink-0 group-hover:bg-verified-blue group-hover:scale-105 transition-all">
+              <span class="material-symbols-outlined text-verified-blue group-hover:text-white transition-colors">shield</span>
+            </div>
+            <div>
+              <h4 class="font-sans font-bold text-on-surface mb-1">Garantie satisfaction</h4>
+              <p class="font-sans text-on-surface-variant" style="font-size:.875rem">En cas de problème, notre équipe t'accompagne jusqu'à la résolution.</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4 p-4 rounded-xl hover:bg-surface-container-low transition-colors group">
+            <div class="w-11 h-11 rounded-xl bg-primary-container/10 flex items-center justify-center shrink-0 group-hover:bg-primary-container group-hover:scale-105 transition-all">
+              <span class="material-symbols-outlined text-on-primary-container group-hover:text-white transition-colors">payments</span>
+            </div>
+            <div>
+              <h4 class="font-sans font-bold text-on-surface mb-1">Mobile Money</h4>
+              <p class="font-sans text-on-surface-variant" style="font-size:.875rem">Orange Money, Wave ou MTN MoMo — paye comme tu veux.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Image + badge -->
+      <div class="relative">
+        <div class="relative rounded-2xl overflow-hidden" style="height:500px">
+          <img src="{% static 'img/artisans/electrician.jpg' %}" alt="Artisan Barapai vérifié"
+               class="w-full h-full object-cover">
+          <div class="absolute inset-0" style="background:linear-gradient(to top,rgba(20,27,43,.4) 0%,transparent 60%)"></div>
+        </div>
+        <!-- Badge flottant -->
+        <div class="absolute -bottom-5 -left-5 bg-white p-4 rounded-2xl shadow-2xl flex items-center gap-3 max-w-xs border border-outline-variant/10">
+          <div class="w-12 h-12 rounded-xl bg-trust-teal/10 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined filled-icon text-trust-teal" style="font-size:24px">verified</span>
+          </div>
+          <div>
+            <p class="font-sans font-bold text-on-surface" style="font-size:.875rem">Profil certifié Barapai</p>
+            <p class="font-sans text-on-surface-variant" style="font-size:.75rem">142 missions · ⭐ 4.9/5</p>
+          </div>
+        </div>
+        <!-- Décor cercle orange -->
+        <div class="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-abidjan-orange-vibrant/15 blur-xl"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     CTA ARTISAN
+     ═══════════════════════════════════════ -->
+<section class="relative bg-primary-container py-20 overflow-hidden">
+  <!-- Décors -->
+  <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+    <div class="absolute top-0 right-0 w-96 h-96 bg-abidjan-orange-vibrant/8 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+    <div class="absolute bottom-0 left-0 w-64 h-64 bg-verified-blue/6 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
+  </div>
+
+  <div class="relative max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+      <div class="space-y-7 text-white" data-reveal>
+        <div>
+          <p class="font-sans text-abidjan-orange-vibrant font-bold mb-3" style="font-size:.8rem;letter-spacing:.08em;text-transform:uppercase">Pour les artisans</p>
+          <h2 class="font-display font-bold text-ivory-white leading-tight" style="font-size:clamp(1.8rem,4vw,2.5rem)">
+            Tu es artisan ?<br>
+            <span class="text-abidjan-orange-vibrant">Rejoins Barapai gratuitement.</span>
+          </h2>
+        </div>
+        <p class="font-sans text-on-primary-container leading-relaxed" style="font-size:1rem">
+          Augmente ta visibilité, reçois des demandes ciblées et gère ton activité depuis un dashboard simple et puissant. Zéro abonnement, zéro frais cachés.
+        </p>
+        <ul class="space-y-3">
+          <li class="flex items-center gap-3 font-sans text-on-primary-container">
+            <span class="material-symbols-outlined filled-icon text-abidjan-orange-vibrant shrink-0">check_circle</span>
+            Profil professionnel avec portfolio photos
+          </li>
+          <li class="flex items-center gap-3 font-sans text-on-primary-container">
+            <span class="material-symbols-outlined filled-icon text-abidjan-orange-vibrant shrink-0">check_circle</span>
+            Notifications de nouvelles demandes en temps réel
+          </li>
+          <li class="flex items-center gap-3 font-sans text-on-primary-container">
+            <span class="material-symbols-outlined filled-icon text-abidjan-orange-vibrant shrink-0">check_circle</span>
+            Dashboard avec statistiques et suivi des revenus
+          </li>
+        </ul>
+        <div class="flex flex-wrap gap-4 pt-2">
+          <a href="{% url 'accounts:signup' %}"
+             class="inline-flex items-center gap-2 bg-abidjan-orange-vibrant text-white px-8 py-4 rounded-xl font-sans font-bold hover:bg-secondary active:scale-[.97] transition-all shadow-lg shadow-abidjan-orange-vibrant/30"
+             style="font-size:.875rem">
+            Créer mon profil gratuit
+            <span class="material-symbols-outlined" style="font-size:20px">arrow_forward</span>
+          </a>
+          <a href="{% url 'catalog:artisans_list' %}"
+             class="inline-flex items-center gap-2 bg-white/8 border border-white/15 text-white px-8 py-4 rounded-xl font-sans font-bold hover:bg-white/15 active:scale-[.97] transition-all"
+             style="font-size:.875rem">
+            Voir les artisans
+          </a>
+        </div>
+      </div>
+
+      <div class="hidden lg:block relative" data-reveal>
+        <img src="{% static 'img/artisans/carpenter.jpg' %}" alt="Artisan Barapai"
+             class="w-full rounded-2xl shadow-2xl" style="height:420px;object-fit:cover">
+        <!-- Overlay gradient -->
+        <div class="absolute inset-0 rounded-2xl" style="background:linear-gradient(135deg,rgba(20,27,43,.3) 0%,transparent 60%)"></div>
+        <!-- Stats flottantes -->
+        <div class="absolute top-6 right-6 bg-white/95 backdrop-blur rounded-2xl px-4 py-3 shadow-xl">
+          <p class="font-sans text-on-surface-variant mb-1" style="font-size:.7rem">Cette semaine</p>
+          <p class="font-display font-bold text-on-surface" style="font-size:1.5rem">+{{ total_artisans }}<span class="text-abidjan-orange-vibrant">+</span></p>
+          <p class="font-sans text-on-surface-variant" style="font-size:.7rem">nouvelles demandes</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 {% endblock %}

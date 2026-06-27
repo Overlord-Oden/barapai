@@ -1,46 +1,72 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Connexion{% endblock %}
+{% block title %}Connexion · Barapai{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
 
 {% block content %}
-<div class="max-w-md mx-auto px-4 py-12">
-    <div class="bg-white rounded-2xl shadow-lg p-8">
-        <div class="text-center mb-6">
-            <span class="text-4xl">🔨</span>
-            <h1 class="text-2xl font-bold mt-2">Connexion</h1>
-            <p class="text-gray-600 text-sm mt-1">Bon retour parmi nous</p>
+<div class="min-h-screen grid grid-cols-1 lg:grid-cols-2">
+
+  <!-- LEFT : form -->
+  <div class="flex items-center justify-center p-8 lg:p-16 bg-background">
+    <div class="w-full max-w-md">
+      <a href="{% url 'core:home' %}" class="inline-flex items-center gap-2.5 mb-8">
+        <div class="w-9 h-9 bg-abidjan-orange-vibrant rounded-xl flex items-center justify-center shadow-md">
+          <span class="material-symbols-outlined filled-icon text-white" style="font-size:19px">handyman</span>
         </div>
+        <span class="font-display font-bold text-headline-lg leading-none tracking-tight">
+          <span class="text-primary">Bara</span><span class="text-abidjan-orange-vibrant">pai</span>
+        </span>
+      </a>
+
+      <h2 class="font-display text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">Connexion</h2>
+      <p class="font-sans text-body-md text-on-surface-variant mb-8">Heureux de te revoir. Connecte-toi à ton compte.</p>
+
+      <form method="post" class="form-styled space-y-4">
+        {% csrf_token %}
 
         {% if form.non_field_errors %}
-        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-4">
-            {{ form.non_field_errors.0 }}
+        <div class="bg-error/10 border border-error/30 text-error rounded-lg p-3 text-label-md">
+          {{ form.non_field_errors.0 }}
         </div>
         {% endif %}
 
-        <form method="post" class="space-y-4">
-            {% csrf_token %}
+        <div>
+  <label>Email</label>
+  <input type="email" name="email" required autofocus
+         value="{{ form.email.value|default:'' }}"
+         placeholder="ton@email.com">
+  {% if form.email.errors %}<p class="text-error text-label-sm mt-1">{{ form.email.errors.0 }}</p>{% endif %}
+</div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.email.label }}</label>
-                {{ form.email }}
-                {% if form.email.errors %}<p class="text-red-600 text-xs mt-1">{{ form.email.errors.0 }}</p>{% endif %}
-            </div>
+<div>
+  <label>Mot de passe</label>
+  <input type="password" name="password" required placeholder="••••••••">
+  {% if form.password.errors %}<p class="text-error text-label-sm mt-1">{{ form.password.errors.0 }}</p>{% endif %}
+</div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.password.label }}</label>
-                {{ form.password }}
-                {% if form.password.errors %}<p class="text-red-600 text-xs mt-1">{{ form.password.errors.0 }}</p>{% endif %}
-            </div>
+        <button type="submit" class="w-full bg-abidjan-orange-vibrant text-white py-3 rounded-lg font-sans text-label-md font-bold hover:bg-secondary active:scale-[0.98] transition-all">
+          Se connecter
+        </button>
 
-            <button type="submit" class="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition">
-                Se connecter
-            </button>
-        </form>
-
-        <p class="text-center text-sm text-gray-600 mt-6">
-            Pas encore de compte ?
-            <a href="{% url 'accounts:signup' %}" class="text-orange-600 hover:underline font-medium">S'inscrire</a>
+        <p class="text-center text-label-md text-on-surface-variant pt-4">
+          Pas encore de compte ?
+          <a href="{% url 'accounts:signup' %}" class="text-abidjan-orange-vibrant font-bold hover:underline">S'inscrire</a>
         </p>
+      </form>
     </div>
+  </div>
+
+  <!-- RIGHT : visual -->
+  <div class="hidden lg:block relative">
+    <img src="{% static 'img/artisans/plumber.jpg' %}" alt="Artisan Barapai" class="absolute inset-0 w-full h-full object-cover">
+    <div class="absolute inset-0 bg-primary-container/70"></div>
+    <div class="relative h-full flex flex-col justify-end p-12 text-white">
+      <p class="font-display text-headline-lg-mobile font-bold text-ivory-white max-w-md mb-3">"Trouve ton boss artisan, à portée de clic."</p>
+      <p class="font-sans text-body-md text-on-primary-container italic">— Seul le travail paie.</p>
+    </div>
+  </div>
 </div>
 {% endblock %}

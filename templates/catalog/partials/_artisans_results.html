@@ -1,17 +1,18 @@
-<div class="mb-4 text-sm text-gray-600">
-    {{ artisans|length }} artisan{{ artisans|length|pluralize }} trouvé{{ artisans|length|pluralize }}
+<div class="flex justify-between items-center mb-6">
+  <p class="font-sans text-body-md text-on-surface">
+    <span class="font-bold">{{ artisans|length }}</span> artisan{{ artisans|length|pluralize }} trouvé{{ artisans|length|pluralize }}
+    {% if selected_city %}à <span class="font-bold">{{ selected_city }}</span>{% endif %}
+  </p>
 </div>
 
-{% if artisans %}
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {% for artisan in artisans %}
-        {% include 'catalog/partials/_artisan_card.html' with artisan=artisan %}
-    {% endfor %}
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter">
+  {% for a in artisans %}
+    {% include 'catalog/partials/_artisan_card.html' with artisan=a %}
+  {% empty %}
+    <div class="col-span-full bg-white rounded-xl p-12 text-center profile-shadow">
+      <span class="material-symbols-outlined text-[48px] text-on-surface-variant mb-4 block">search_off</span>
+      <h3 class="font-display text-headline-md text-on-surface mb-2">Aucun artisan trouvé</h3>
+      <p class="font-sans text-body-md text-on-surface-variant">Essaie d'élargir tes critères de recherche.</p>
+    </div>
+  {% endfor %}
 </div>
-{% else %}
-<div class="text-center py-16">
-    <span class="text-6xl mb-4 block">🔎</span>
-    <p class="text-gray-500 font-medium">Aucun artisan trouvé pour cette recherche.</p>
-    <p class="text-sm text-gray-400 mt-2">Essaie de modifier tes filtres.</p>
-</div>
-{% endif %}

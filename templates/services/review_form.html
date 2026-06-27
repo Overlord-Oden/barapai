@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Laisser un avis · Barapai{% endblock %}
+
+{% block content %}
+<section class="bg-primary-container py-10">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+    <a href="{% url 'services:my_requests' %}" class="inline-flex items-center gap-1.5 text-on-primary-container hover:text-white mb-4 font-sans transition-colors" style="font-size:.875rem">
+      <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span>
+      Mes demandes
+    </a>
+    <h1 class="font-display font-bold text-ivory-white" style="font-size:1.75rem">Laisser un avis</h1>
+    <p class="font-sans text-on-primary-container mt-1">Mission : <strong>{{ service_request.title }}</strong></p>
+  </div>
+</section>
+
+<section class="bg-background py-12">
+  <div class="max-w-lg mx-auto px-margin-mobile md:px-margin-desktop">
+
+    <!-- Infos artisan -->
+    <div class="bg-white rounded-2xl p-5 profile-shadow flex items-center gap-4 mb-6">
+      <div class="w-14 h-14 rounded-xl bg-primary-container flex items-center justify-center text-white font-bold shrink-0" style="font-size:1.3rem">
+        {% if service_request.artisan.profile_picture %}
+        <img src="{{ service_request.artisan.profile_picture.url }}" class="w-full h-full rounded-xl object-cover">
+        {% else %}{{ service_request.artisan.user.full_name|slice:":1"|upper }}{% endif %}
+      </div>
+      <div>
+        <p class="font-display font-bold text-on-surface">{{ service_request.artisan.user.full_name }}</p>
+        <p class="font-sans text-on-surface-variant" style="font-size:.85rem">{{ service_request.category.name }} · {{ service_request.completed_at|date:"d M Y" }}</p>
+      </div>
+    </div>
+
+    <!-- Formulaire avis -->
+    <div class="bg-white rounded-2xl p-6 profile-shadow">
+      <form method="post" x-data="{ rating: 0, hovered: 0 }">
+        {% csrf_token %}
+        <input type="hidden" name="rating" x-model="rating">
+
+        <h3 class="font-display font-bold text-on-surface mb-4" style="font-size:1.1rem">Ta note</h3>
+
+        <!-- Étoiles interactives -->
+        <div class="flex items-center gap-2 mb-6">
+          {% for i in "12345" %}
+          <button type="button"
+                  @click="rating = {{ forloop.counter }}"
+                  @mouseenter="hovered = {{ forloop.counter }}"
+                  @mouseleave="hovered = 0"
+                  class="transition-transform hover:scale-110 active:scale-95">
+            <span class="material-symbols-outlined transition-colors"
+                  :class="(hovered || rating) >= {{ forloop.counter }} ? 'filled-icon text-abidjan-orange-vibrant' : 'text-outline-variant'"
+                  style="font-size:40px">star</span>
+          </button>
+          {% endfor %}
+          <span class="font-display font-bold text-on-surface ml-2" x-show="rating > 0" style="font-size:1.2rem" x-text="rating + '/5'"></span>
+        </div>
+
+        <!-- Message d'erreur rating -->
+        {% if form.rating.errors %}
+        <p class="text-error font-sans mb-4" style="font-size:.875rem">{{ form.rating.errors.0 }}</p>
+        {% endif %}
+
+        <div class="form-styled">
+          <label>Ton commentaire <span class="text-on-surface-variant font-normal">(optionnel)</span></label>
+          <textarea name="comment" rows="4" placeholder="Décris la qualité du travail, le sérieux de l'artisan, si tu le recommandes...">{{ form.comment.value|default:'' }}</textarea>
+          {% if form.comment.errors %}<p class="text-error text-label-sm mt-1">{{ form.comment.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="mt-6 flex gap-3">
+          <button type="submit"
+                  :disabled="rating === 0"
+                  :class="rating === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-secondary active:scale-[.97]'"
+                  class="flex-1 bg-abidjan-orange-vibrant text-white py-3.5 rounded-xl font-sans font-bold transition-all flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined filled-icon" style="font-size:20px">star</span>
+            Publier mon avis
+          </button>
+          <a href="{% url 'services:my_requests' %}"
+             class="px-6 py-3.5 rounded-xl border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container font-sans transition-colors flex items-center" style="font-size:.875rem">
+            Annuler
+          </a>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

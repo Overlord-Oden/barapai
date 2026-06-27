@@ -58,4 +58,4 @@ class MessageAdmin(admin.ModelAdmin):
     list_display = ('sender', 'service_request', 'is_read', 'created_at')
     list_filter = ('is_read', 'created_at')
     search_fields = ('content', 'sender__email')
-    readonly_fields = ('created_at',)
+    readonly_fields = ('created_at',) 

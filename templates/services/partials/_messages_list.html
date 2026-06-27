@@ -1,0 +1,16 @@
+{% for msg in messages_list %}
+<div class="flex {% if msg.sender == current_user %}justify-end{% else %}justify-start{% endif %}">
+  <div class="max-w-[75%] {% if msg.sender == current_user %}bg-abidjan-orange-vibrant text-white rounded-2xl rounded-br-sm{% else %}bg-surface-container text-on-surface rounded-2xl rounded-bl-sm{% endif %} px-4 py-3 shadow-sm">
+    {% if msg.sender != current_user %}
+    <p class="font-sans font-bold mb-1 {% if msg.sender == current_user %}text-white/80{% else %}text-on-surface-variant{% endif %}" style="font-size:.7rem">{{ msg.sender.full_name }}</p>
+    {% endif %}
+    <p class="font-sans leading-relaxed" style="font-size:.9rem">{{ msg.content }}</p>
+    <p class="font-sans mt-1 {% if msg.sender == current_user %}text-white/60{% else %}text-on-surface-variant{% endif %} text-right" style="font-size:.7rem">{{ msg.created_at|date:"d M · H:i" }}</p>
+  </div>
+</div>
+{% empty %}
+<div class="text-center py-12">
+  <span class="material-symbols-outlined text-outline-variant block mb-3" style="font-size:48px">chat_bubble</span>
+  <p class="font-sans text-on-surface-variant">Aucun message pour l'instant. Sois le premier à écrire !</p>
+</div>
+{% endfor %}

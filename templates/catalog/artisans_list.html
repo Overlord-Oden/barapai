@@ -1,69 +1,141 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Trouver un artisan{% endblock %}
-
-{% block extra_head %}
-<style>
-    .htmx-indicator { display: none; }
-    .htmx-request .htmx-indicator,
-    .htmx-request.htmx-indicator { display: inline-flex; }
-    .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-</style>
-{% endblock %}
+{% block title %}Trouve ton artisan · Barapai{% endblock %}
 
 {% block content %}
-<section class="bg-orange-50 border-b border-orange-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 class="text-3xl md:text-4xl font-bold text-center mb-2">Trouve ton boss 🔧</h1>
-        <p class="text-center text-gray-600 mb-8">Plombiers, électriciens, menuisiers... à Abidjan</p>
 
-        <!-- Formulaire de recherche HTMX -->
-        <form hx-get="{% url 'catalog:artisans_list' %}"
-              hx-target="#artisans-results"
+<!-- HERO with search -->
+<section class="bg-primary-container text-white">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-16 md:py-20 text-center">
+    <h1 class="font-display text-headline-lg-mobile md:text-display-lg font-bold text-ivory-white">
+      Trouve ton artisan de confiance<br>
+      <span class="text-abidjan-orange-vibrant">à Abidjan</span>
+    </h1>
+
+    <form action="{% url 'catalog:artisans_list' %}" method="get"
+          hx-get="{% url 'catalog:artisans_list' %}" hx-target="#results" hx-push-url="true" hx-indicator="#results-loading"
+          class="max-w-3xl mx-auto mt-10 bg-white rounded-xl p-2 flex flex-col md:flex-row gap-2">
+
+      <div class="flex-1 flex items-center gap-3 px-4 py-2">
+        <span class="material-symbols-outlined text-on-surface-variant">search</span>
+        <input type="text" name="q" value="{{ q }}" placeholder="Quel métier recherches-tu ?"
+               class="flex-1 outline-none text-body-md text-on-surface bg-transparent">
+      </div>
+
+      <div class="hidden md:block w-px bg-outline-variant my-2"></div>
+
+      <div class="flex items-center gap-3 px-4 py-2">
+        <span class="material-symbols-outlined text-on-surface-variant">location_on</span>
+        <select name="city" class="outline-none text-body-md text-on-surface bg-transparent">
+          <option value="">Toutes les communes</option>
+          {% for c in cities %}
+            <option value="{{ c }}" {% if c == selected_city %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <button type="submit" class="bg-abidjan-orange-vibrant text-white px-6 py-3 rounded-lg font-sans text-label-md hover:bg-secondary active:scale-95 transition-all">
+        Rechercher
+      </button>
+    </form>
+
+    <div class="flex flex-wrap items-center justify-center gap-2 mt-6">
+      <span class="font-sans text-label-sm text-on-primary-container">Populaires :</span>
+      {% for cat in categories|slice:":4" %}
+        <a href="?category={{ cat.slug }}"
+           class="bg-white/10 hover:bg-abidjan-orange-vibrant text-ivory-white px-3 py-1 rounded-full text-label-sm transition-colors">
+          {{ cat.name }}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- BODY: sidebar + results -->
+<section class="bg-background py-12">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+
+      <!-- SIDEBAR FILTERS -->
+      <aside class="lg:col-span-3">
+        <form id="filter-form"
+              hx-get="{% url 'catalog:artisans_list' %}"
+              hx-target="#results"
               hx-push-url="true"
-              hx-trigger="input from:#search-input delay:300ms, change from:#category-select, input from:#city-input delay:300ms"
-              hx-indicator="#loading-indicator"
-              class="bg-white rounded-2xl shadow-md p-4 grid grid-cols-1 md:grid-cols-3 gap-3 max-w-4xl mx-auto">
+              hx-trigger="change delay:200ms"
+              hx-indicator="#results-loading"
+              class="bg-white rounded-xl p-6 profile-shadow lg:sticky lg:top-24">
 
-            <input id="search-input" type="text" name="q" value="{{ query }}"
-                   placeholder="🔍 Rechercher un artisan..."
-                   class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="font-display text-headline-md text-on-surface">Filtres</h2>
+            <a href="{% url 'catalog:artisans_list' %}" class="text-abidjan-orange-vibrant text-label-sm hover:underline">Réinitialiser</a>
+          </div>
 
-            <select id="category-select" name="category"
-                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                <option value="">Toutes catégories</option>
-                {% for category in categories %}
-                    <option value="{{ category.slug }}" {% if category.slug == selected_category %}selected{% endif %}>
-                        {{ category.icon }} {{ category.name }}
-                    </option>
-                {% endfor %}
-            </select>
+          <input type="hidden" name="q" value="{{ q }}">
+          <input type="hidden" name="city" value="{{ selected_city }}">
 
-            <input id="city-input" type="text" name="city" value="{{ city }}"
-                   placeholder="🏙️ Quartier (ex: Cocody)"
-                   class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+          <div class="mb-6">
+            <h4 class="font-sans text-label-md text-on-surface-variant mb-3">MÉTIERS</h4>
+            <div class="space-y-2 max-h-60 overflow-y-auto">
+              <label class="flex items-center gap-2 cursor-pointer hover:text-abidjan-orange-vibrant">
+                <input type="radio" name="category" value="" {% if not selected_category %}checked{% endif %} class="accent-abidjan-orange-vibrant">
+                <span class="font-sans text-body-md text-on-surface-variant italic">Tous</span>
+              </label>
+              {% for cat in categories %}
+              <label class="flex items-center gap-2 cursor-pointer hover:text-abidjan-orange-vibrant">
+                <input type="radio" name="category" value="{{ cat.slug }}"
+                       {% if cat.slug == selected_category %}checked{% endif %}
+                       class="accent-abidjan-orange-vibrant">
+                <span class="font-sans text-body-md">{{ cat.name }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <h4 class="font-sans text-label-md text-on-surface-variant mb-3">TARIF MAX (FCFA/h)</h4>
+            <input type="range" name="max_rate"
+                   value="{{ max_rate|default:50000 }}"
+                   min="0" max="100000" step="5000"
+                   class="w-full accent-abidjan-orange-vibrant">
+            <div class="flex justify-between text-label-sm text-on-surface-variant mt-1">
+              <span>0</span>
+              <span>100k+</span>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="font-sans text-label-md text-on-surface-variant mb-3">NOTE MINIMUM</h4>
+            <div class="flex gap-1">
+              {% for i in "12345" %}
+              <label class="cursor-pointer">
+                <input type="radio" name="min_rating" value="{{ i }}" {% if i == min_rating %}checked{% endif %} class="sr-only peer">
+                <span class="material-symbols-outlined text-[22px] text-outline-variant peer-checked:text-abidjan-orange-vibrant peer-checked:filled-icon hover:text-abidjan-orange-vibrant transition-colors">star</span>
+              </label>
+              {% endfor %}
+            </div>
+            {% if min_rating %}<p class="text-label-sm text-on-surface-variant mt-2">{{ min_rating }}+ étoiles</p>{% endif %}
+          </div>
+
         </form>
+      </aside>
 
-        <div id="loading-indicator" class="htmx-indicator text-center mt-4">
-            <span class="inline-flex items-center gap-2 text-orange-600 font-medium">
-                <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.25"/>
-                    <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.4 0 0 5.4 0 12h4z"/>
-                </svg>
-                Recherche...
-            </span>
+      <!-- RESULTS GRID -->
+      <div id="results" class="lg:col-span-9 relative">
+        <!-- Loading skeleton -->
+        <div id="results-loading" class="htmx-indicator absolute inset-0 z-10 bg-background/80 backdrop-blur-sm rounded-xl flex items-center justify-center">
+          <div class="flex flex-col items-center gap-3">
+            <div class="w-10 h-10 rounded-full border-4 border-abidjan-orange-vibrant border-t-transparent animate-spin"></div>
+            <p class="font-sans text-label-md text-on-surface-variant">Recherche en cours…</p>
+          </div>
         </div>
+        {% include 'catalog/partials/_artisans_results.html' %}
+      </div>
+
     </div>
+  </div>
 </section>
 
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div id="artisans-results">
-        {% include 'catalog/partials/_artisans_results.html' %}
-    </div>
-</section>
 {% endblock %}

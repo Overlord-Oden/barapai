@@ -1,50 +1,82 @@
-<nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-            <!-- Logo -->
-            <a href="{% url 'core:home' %}" class="flex items-center gap-2">
-                <span class="text-2xl">🔨</span>
-                <span class="text-xl font-bold text-orange-600">Barapai</span>
-            </a>
+<header class="bg-surface sticky top-0 z-50 transition-shadow border-b border-outline-variant/30">
+  <nav class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-4 w-full max-w-container-max mx-auto">
 
-            <!-- Liens centraux -->
-            <div class="hidden md:flex items-center gap-6">
-                <a href="{% url 'core:home' %}" class="text-gray-700 hover:text-orange-600 font-medium">
-                    Accueil
-                </a>
-                <a href="{% url 'catalog:artisans_list' %}" class="text-gray-700 hover:text-orange-600 font-medium">
-                    Trouver un artisan
-                </a>
-                <a href="{% url 'accounts:signup' %}" class="text-gray-700 hover:text-orange-600 font-medium">
-                    Devenir artisan
-                </a>
-            </div>
-
-            <!-- Auth section -->
-            <div class="flex items-center gap-3">
-                {% if user.is_authenticated %}
-                    {% if user.is_client %}
-        <a href="{% url 'services:my_requests' %}" class="text-sm text-gray-700 hover:text-orange-600">
-            Mes demandes
-        </a>
-    {% elif user.is_artisan %}
-        <a href="{% url 'services:artisan_dashboard' %}" class="text-sm text-gray-700 hover:text-orange-600">
-            Mes missions
-        </a>
-    {% endif %}
-    <span class="text-sm text-gray-600 hidden sm:inline">{{ user.full_name }}</span>
-    <a href="{% url 'accounts:logout' %}" class="text-sm text-gray-700 hover:text-orange-600">
-        Deconnexion
-    </a>
-                {% else %}
-                    <a href="{% url 'accounts:login' %}" class="text-sm text-gray-700 hover:text-orange-600 font-medium">
-                        Connexion
-                    </a>
-                    <a href="{% url 'accounts:signup' %}" class="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition">
-                        Inscription
-                    </a>
-                {% endif %}
-            </div>
+    <div class="flex items-center gap-8">
+      <a href="{% url 'core:home' %}" class="flex items-center gap-2 shrink-0">
+        <div class="w-8 h-8 bg-abidjan-orange-vibrant rounded-lg flex items-center justify-center shadow-sm">
+          <span class="material-symbols-outlined filled-icon text-white" style="font-size:17px">handyman</span>
         </div>
+        <span class="font-display font-bold text-headline-lg leading-none tracking-tight">
+          <span class="text-primary">Bara</span><span class="text-abidjan-orange-vibrant">pai</span>
+        </span>
+      </a>
+      <div class="hidden md:flex gap-6">
+        <a href="{% url 'catalog:artisans_list' %}"
+           class="font-sans text-label-md {% if request.resolver_match.url_name == 'artisans_list' %}text-primary border-b-2 border-abidjan-orange-vibrant pb-1{% else %}text-on-surface-variant{% endif %} hover:text-abidjan-orange-vibrant transition-colors">
+          Trouver un artisan
+        </a>
+        {% if not user.is_authenticated or not user.is_artisan %}
+        <a href="{% url 'accounts:signup' %}"
+           class="font-sans text-label-md text-on-surface-variant hover:text-abidjan-orange-vibrant transition-colors">
+          Devenir artisan
+        </a>
+        {% endif %}
+      </div>
     </div>
-</nav>
+
+    <div class="flex items-center gap-4">
+      {% if user.is_authenticated %}
+        <div class="relative flex items-center gap-3" x-data="{ open: false }" @click.outside="open = false">
+          <button @click="open = !open"
+                  class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <span class="w-9 h-9 rounded-full bg-primary-container text-ivory-white flex items-center justify-center font-bold text-label-md shrink-0">
+              {{ user.full_name|slice:":1"|upper }}
+            </span>
+            <span class="hidden md:block font-sans text-label-md text-on-surface-variant">{{ user.full_name|truncatechars:15 }}</span>
+            <span class="material-symbols-outlined text-on-surface-variant" style="font-size:18px" :class="open ? 'rotate-180' : ''" class="transition-transform">expand_more</span>
+          </button>
+          <!-- Dropdown menu -->
+          <div x-show="open" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
+               class="absolute right-0 top-12 bg-white rounded-2xl shadow-2xl border border-outline-variant/20 py-2 min-w-[190px] z-50" style="display:none">
+            <a href="{% url 'accounts:profile_edit' %}"
+               class="flex items-center gap-3 px-4 py-2.5 text-on-surface hover:bg-surface-container transition-colors font-sans" style="font-size:.875rem">
+              <span class="material-symbols-outlined text-on-surface-variant" style="font-size:18px">manage_accounts</span>
+              Mon profil
+            </a>
+            {% if user.is_artisan %}
+            <a href="{% url 'services:artisan_dashboard' %}"
+               class="flex items-center gap-3 px-4 py-2.5 text-on-surface hover:bg-surface-container transition-colors font-sans" style="font-size:.875rem">
+              <span class="material-symbols-outlined text-on-surface-variant" style="font-size:18px">dashboard</span>
+              Dashboard
+            </a>
+            {% else %}
+            <a href="{% url 'services:my_requests' %}"
+               class="flex items-center gap-3 px-4 py-2.5 text-on-surface hover:bg-surface-container transition-colors font-sans" style="font-size:.875rem">
+              <span class="material-symbols-outlined text-on-surface-variant" style="font-size:18px">assignment</span>
+              Mes demandes
+            </a>
+            {% endif %}
+            <div class="border-t border-outline-variant/20 my-1"></div>
+            <form method="post" action="{% url 'accounts:logout' %}">
+              {% csrf_token %}
+              <button type="submit"
+                      class="w-full flex items-center gap-3 px-4 py-2.5 text-error hover:bg-error/5 transition-colors font-sans text-left" style="font-size:.875rem">
+                <span class="material-symbols-outlined" style="font-size:18px">logout</span>
+                Déconnexion
+              </button>
+            </form>
+          </div>
+        </div>
+      {% else %}
+        <a href="{% url 'accounts:login' %}"
+           class="font-sans text-label-md text-on-surface-variant hover:text-abidjan-orange-vibrant transition-colors">
+          Connexion
+        </a>
+        <a href="{% url 'accounts:signup' %}"
+           class="bg-abidjan-orange-vibrant text-white px-6 py-2.5 rounded-lg font-sans text-label-md hover:bg-secondary active:scale-95 transition-all">
+          Inscription
+        </a>
+      {% endif %}
+    </div>
+  </nav>
+</header>

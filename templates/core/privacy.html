@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Politique de confidentialité · Barapai{% endblock %}
+
+{% block content %}
+<section class="bg-primary-container py-14">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+    <h1 class="font-display font-bold text-ivory-white mb-2" style="font-size:2rem">Politique de confidentialité</h1>
+    <p class="font-sans text-on-primary-container">Dernière mise à jour : juin 2026</p>
+  </div>
+</section>
+<section class="bg-background py-16">
+  <div class="max-w-3xl mx-auto px-margin-mobile md:px-margin-desktop">
+    <div class="bg-white rounded-2xl p-8 md:p-12 profile-shadow space-y-6 font-sans text-on-surface leading-relaxed" style="font-size:.95rem">
+      <h2 class="font-display font-bold text-on-surface" style="font-size:1.2rem">1. Données collectées</h2>
+      <p>Nous collectons : nom, email, numéro de téléphone, photos de profil et portfolio, historique des demandes de service et avis.</p>
+      <h2 class="font-display font-bold text-on-surface" style="font-size:1.2rem">2. Utilisation des données</h2>
+      <p>Vos données sont utilisées exclusivement pour faire fonctionner la plateforme, améliorer nos services et communiquer avec vous sur vos demandes. Aucune vente à des tiers.</p>
+      <h2 class="font-display font-bold text-on-surface" style="font-size:1.2rem">3. Vos droits</h2>
+      <p>Vous pouvez à tout moment demander l'accès, la rectification ou la suppression de vos données en nous contactant à <a href="{% url 'core:contact' %}" class="text-abidjan-orange-vibrant hover:underline">contact@barapai.ci</a>.</p>
+      <h2 class="font-display font-bold text-on-surface" style="font-size:1.2rem">4. Sécurité</h2>
+      <p>Vos données sont stockées de manière sécurisée. Les mots de passe sont hachés et jamais stockés en clair.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

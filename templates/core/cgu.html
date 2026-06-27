@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Conditions Générales d'Utilisation · Barapai{% endblock %}
+
+{% block content %}
+<section class="bg-primary-container py-14">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+    <h1 class="font-display font-bold text-ivory-white mb-2" style="font-size:2rem">Conditions Générales d'Utilisation</h1>
+    <p class="font-sans text-on-primary-container">Dernière mise à jour : juin 2026</p>
+  </div>
+</section>
+<section class="bg-background py-16">
+  <div class="max-w-3xl mx-auto px-margin-mobile md:px-margin-desktop">
+    <div class="bg-white rounded-2xl p-8 md:p-12 profile-shadow prose prose-slate max-w-none font-sans text-on-surface leading-relaxed space-y-6" style="font-size:.95rem">
+      <h2 class="font-display font-bold text-on-surface" style="font-size:1.2rem">1. Objet</h2>
+      <p>Barapai est une plateforme de mise en relation entre clients et artisans qualifiés en Côte d'Ivoire. Les présentes CGU régissent l'utilisation du service.</p>
+      <h2 class="font-display font-bold text-on-surface" style="font-size:1.2rem">2. Inscription</h2>
+      <p>L'inscription est gratuite. L'utilisateur doit fournir des informations exactes et maintenir leur exactitude. Tout compte frauduleux sera supprimé.</p>
+      <h2 class="font-display font-bold text-on-surface" style="font-size:1.2rem">3. Responsabilités</h2>
+      <p>Barapai est un intermédiaire de mise en relation. Les contrats de prestation sont conclus directement entre clients et artisans. Barapai ne peut être tenu responsable de l'exécution des prestations.</p>
+      <h2 class="font-display font-bold text-on-surface" style="font-size:1.2rem">4. Avis et notations</h2>
+      <p>Seuls les clients ayant effectivement utilisé un service peuvent laisser un avis. Tout avis frauduleux ou abusif sera supprimé.</p>
+      <h2 class="font-display font-bold text-on-surface" style="font-size:1.2rem">5. Contact</h2>
+      <p>Pour toute question : <a href="{% url 'core:contact' %}" class="text-abidjan-orange-vibrant hover:underline">contact@barapai.ci</a></p>
+    </div>
+  </div>
+</section>
+{% endblock %}

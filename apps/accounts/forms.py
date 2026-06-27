@@ -1,5 +1,5 @@
 """
-Formulaires pour l'authentification.
+Formulaires pour l'authentification et l'édition de profil.
 """
 from django import forms
 from django.contrib.auth import authenticate
@@ -9,25 +9,19 @@ from django.utils.translation import gettext_lazy as _
 from .models import User, ArtisanProfile
 
 
-INPUT_CLASS = (
-    'w-full px-4 py-2 border border-gray-300 rounded-lg '
-    'focus:ring-2 focus:ring-orange-500 focus:border-transparent'
-)
-
-
 class SignupForm(UserCreationForm):
     """Inscription. Si role=ARTISAN, on cree aussi un ArtisanProfile minimal."""
 
     full_name = forms.CharField(
         label=_('Nom complet'),
         max_length=150,
-        widget=forms.TextInput(attrs={'class': INPUT_CLASS, 'placeholder': 'Konan Yao'}),
+        widget=forms.TextInput(attrs={'placeholder': 'Konan Yao'}),
     )
     phone = forms.CharField(
         label=_('Telephone'),
         max_length=20,
         required=False,
-        widget=forms.TextInput(attrs={'class': INPUT_CLASS, 'placeholder': '+225 07 00 00 00 00'}),
+        widget=forms.TextInput(attrs={'placeholder': '+225 07 00 00 00 00'}),
     )
     role = forms.ChoiceField(
         label=_('Je suis'),
@@ -39,13 +33,11 @@ class SignupForm(UserCreationForm):
         model = User
         fields = ('email', 'full_name', 'phone', 'role')
         widgets = {
-            'email': forms.EmailInput(attrs={'class': INPUT_CLASS, 'placeholder': 'ton@email.com'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'ton@email.com'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for f in ('password1', 'password2'):
-            self.fields[f].widget.attrs.update({'class': INPUT_CLASS})
         self.fields['password1'].label = _('Mot de passe')
         self.fields['password2'].label = _('Confirmer le mot de passe')
 
@@ -68,15 +60,11 @@ class LoginForm(forms.Form):
 
     email = forms.EmailField(
         label=_('Email'),
-        widget=forms.EmailInput(attrs={
-            'class': INPUT_CLASS,
-            'placeholder': 'ton@email.com',
-            'autofocus': True,
-        }),
+        widget=forms.EmailInput(attrs={'placeholder': 'ton@email.com'}),
     )
     password = forms.CharField(
         label=_('Mot de passe'),
-        widget=forms.PasswordInput(attrs={'class': INPUT_CLASS, 'placeholder': '••••••••'}),
+        widget=forms.PasswordInput(attrs={'placeholder': '••••••••'}),
     )
 
     def clean(self):
@@ -92,3 +80,39 @@ class LoginForm(forms.Form):
             if not self.user.is_active:
                 raise forms.ValidationError(_("Ce compte est desactive."))
         return cleaned_data
+
+
+class UserEditForm(forms.ModelForm):
+    """Édition des infos de base du compte (nom, téléphone, email)."""
+
+    class Meta:
+        model = User
+        fields = ['full_name', 'phone', 'email']
+        widgets = {
+            'full_name': forms.TextInput(attrs={'placeholder': 'Ton nom complet'}),
+            'phone': forms.TextInput(attrs={'placeholder': '+225 07 00 00 00 00'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'ton@email.com'}),
+        }
+
+
+class ArtisanProfileForm(forms.ModelForm):
+    """Édition du profil professionnel artisan."""
+
+    class Meta:
+        model = ArtisanProfile
+        fields = [
+            'bio', 'years_experience', 'hourly_rate',
+            'city', 'neighborhood', 'categories',
+            'profile_picture', 'is_available',
+        ]
+        widgets = {
+            'bio': forms.Textarea(attrs={
+                'rows': 4,
+                'placeholder': 'Décris ton expertise, ton expérience, ce qui te différencie...',
+            }),
+            'years_experience': forms.NumberInput(attrs={'min': 0, 'max': 50}),
+            'hourly_rate': forms.NumberInput(attrs={'placeholder': '5000'}),
+            'city': forms.TextInput(attrs={'placeholder': 'Abidjan'}),
+            'neighborhood': forms.TextInput(attrs={'placeholder': 'Cocody, Yopougon...'}),
+            'categories': forms.CheckboxSelectMultiple(),
+        }

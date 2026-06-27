@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Conversation · {{ service_request.title }} · Barapai{% endblock %}
+
+{% block content %}
+<section class="bg-primary-container py-8">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+    <a href="{% if is_client %}{% url 'services:my_requests' %}{% else %}{% url 'services:artisan_dashboard' %}{% endif %}"
+       class="inline-flex items-center gap-1.5 text-on-primary-container hover:text-white mb-4 font-sans transition-colors" style="font-size:.875rem">
+      <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span>
+      {% if is_client %}Mes demandes{% else %}Dashboard{% endif %}
+    </a>
+    <div class="flex items-start gap-4">
+      <div class="w-12 h-12 rounded-xl bg-abidjan-orange-vibrant/20 flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-abidjan-orange-vibrant" style="font-size:24px">chat</span>
+      </div>
+      <div>
+        <h1 class="font-display font-bold text-ivory-white" style="font-size:1.4rem">{{ service_request.title }}</h1>
+        <div class="flex items-center gap-3 mt-1">
+          {% if is_client %}
+          <p class="font-sans text-on-primary-container" style="font-size:.85rem">
+            Avec <strong>{{ service_request.artisan.user.full_name }}</strong> · {{ service_request.category.name }}
+          </p>
+          {% else %}
+          <p class="font-sans text-on-primary-container" style="font-size:.85rem">
+            Client : <strong>{{ service_request.client.full_name }}</strong> · {{ service_request.category.name }}
+          </p>
+          {% endif %}
+          <span class="font-sans px-2 py-0.5 rounded-full text-white
+            {% if service_request.status == 'PENDING' %}bg-abidjan-orange-vibrant/70
+            {% elif service_request.status == 'ACCEPTED' %}bg-verified-blue/70
+            {% elif service_request.status == 'COMPLETED' %}bg-trust-teal/70
+            {% else %}bg-white/20{% endif %}"
+            style="font-size:.7rem;font-weight:600">
+            {{ service_request.get_status_display }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-background py-0">
+  <div class="max-w-2xl mx-auto px-margin-mobile md:px-margin-desktop py-6 flex flex-col" style="min-height:calc(100vh - 220px)">
+
+    <!-- Zone messages (scrollable) -->
+    <div id="messages-container"
+         class="flex-1 overflow-y-auto space-y-4 mb-6 pr-1"
+         style="max-height:60vh">
+      {% include 'services/partials/_messages_list.html' with messages_list=messages_list current_user=request.user %}
+    </div>
+
+    <!-- Formulaire envoi -->
+    <div class="bg-white rounded-2xl p-4 profile-shadow border border-outline-variant/20 sticky bottom-4">
+      <form method="post"
+            hx-post="{% url 'services:conversation' pk=service_request.pk %}"
+            hx-target="#messages-container"
+            hx-swap="innerHTML"
+            hx-on::after-request="this.reset(); document.getElementById('messages-container').scrollTop = 9999"
+            class="form-styled">
+        {% csrf_token %}
+        <div class="flex items-end gap-3">
+          <div class="flex-1">
+            <textarea name="content" rows="2" required
+                      placeholder="Écris ton message…"
+                      class="w-full resize-none"></textarea>
+          </div>
+          <button type="submit"
+                  class="bg-abidjan-orange-vibrant text-white p-3.5 rounded-xl hover:bg-secondary active:scale-[.95] transition-all shrink-0 self-end">
+            <span class="material-symbols-outlined filled-icon" style="font-size:22px">send</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  // Auto-scroll vers le bas au chargement
+  const c = document.getElementById('messages-container');
+  if (c) c.scrollTop = c.scrollHeight;
+</script>
+{% endblock %}

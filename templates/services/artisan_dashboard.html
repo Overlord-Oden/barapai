@@ -1,39 +1,283 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Mes missions{% endblock %}
+{% block title %}Tableau de bord · Barapai{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto px-4 py-10">
-    <h1 class="text-3xl font-bold mb-6">Mes missions</h1>
+<div class="flex min-h-screen bg-background">
 
-    <!-- Tabs de filtre -->
-    <div class="flex border-b border-gray-200 mb-6 overflow-x-auto">
-        <a href="?" class="px-4 py-2 border-b-2 whitespace-nowrap {% if not status_filter %}border-orange-500 text-orange-600 font-medium{% else %}border-transparent text-gray-600 hover:text-orange-600{% endif %}">
-            Toutes ({{ stats.all }})
-        </a>
-        <a href="?status=PENDING" class="px-4 py-2 border-b-2 whitespace-nowrap {% if status_filter == 'PENDING' %}border-orange-500 text-orange-600 font-medium{% else %}border-transparent text-gray-600 hover:text-orange-600{% endif %}">
-            En attente ({{ stats.pending }})
-        </a>
-        <a href="?status=ACCEPTED" class="px-4 py-2 border-b-2 whitespace-nowrap {% if status_filter == 'ACCEPTED' %}border-orange-500 text-orange-600 font-medium{% else %}border-transparent text-gray-600 hover:text-orange-600{% endif %}">
-            Acceptées ({{ stats.accepted }})
-        </a>
-        <a href="?status=COMPLETED" class="px-4 py-2 border-b-2 whitespace-nowrap {% if status_filter == 'COMPLETED' %}border-orange-500 text-orange-600 font-medium{% else %}border-transparent text-gray-600 hover:text-orange-600{% endif %}">
-            Terminées ({{ stats.completed }})
-        </a>
+  <!-- SIDEBAR -->
+  <aside class="w-64 bg-primary-container text-white flex flex-col fixed h-screen">
+    <div class="p-6 border-b border-white/10">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="w-7 h-7 bg-abidjan-orange-vibrant rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined filled-icon text-white" style="font-size:15px">handyman</span>
+        </div>
+        <span class="font-display font-bold text-headline-md leading-none tracking-tight">
+          <span class="text-white">Bara</span><span class="text-abidjan-orange-vibrant">pai</span>
+        </span>
+      </div>
+      <p class="font-sans text-label-sm text-on-primary-container">Seul le travail paie</p>
     </div>
 
-    <!-- Liste des demandes -->
-    {% if requests_list %}
-    <div class="space-y-3">
-        {% for req in requests_list %}
-            {% include 'services/partials/_request_card_artisan.html' with req=req %}
-        {% endfor %}
+    <nav class="flex-1 p-4 space-y-1">
+      <a href="{% url 'services:artisan_dashboard' %}"
+         class="flex items-center gap-3 px-4 py-3 rounded-lg bg-abidjan-orange-vibrant text-white font-sans text-label-md font-bold">
+        <span class="material-symbols-outlined">dashboard</span>
+        Tableau de bord
+      </a>
+      <a href="{% url 'services:artisan_dashboard' %}?status=PENDING"
+         class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-primary-container hover:bg-white/5 hover:text-white transition-colors font-sans text-label-md">
+        <span class="material-symbols-outlined">inbox</span>
+        Mes demandes
+        {% if stats.pending %}<span class="ml-auto bg-abidjan-orange-vibrant text-white text-label-sm px-2 py-0.5 rounded-full">{{ stats.pending }}</span>{% endif %}
+      </a>
+      <a href="{% url 'catalog:artisan_detail' pk=artisan_profile.pk %}"
+         class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-primary-container hover:bg-white/5 hover:text-white transition-colors font-sans text-label-md">
+        <span class="material-symbols-outlined">person</span>
+        Mon profil public
+      </a>
+      <a href="#"
+         class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-primary-container hover:bg-white/5 hover:text-white transition-colors font-sans text-label-md">
+        <span class="material-symbols-outlined">payments</span>
+        Mes revenus
+      </a>
+      <a href="#"
+         class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-primary-container hover:bg-white/5 hover:text-white transition-colors font-sans text-label-md">
+        <span class="material-symbols-outlined">help</span>
+        Aide
+      </a>
+    </nav>
+
+    <div class="p-4 border-t border-white/10">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-10 h-10 rounded-full bg-abidjan-orange-vibrant text-white flex items-center justify-center font-bold ring-2 ring-abidjan-orange-vibrant ring-offset-2 ring-offset-primary-container">
+          {{ request.user.full_name|slice:":1"|upper }}
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="font-sans font-bold text-label-md text-white truncate">{{ request.user.full_name }}</p>
+          <p class="font-sans text-label-sm text-on-primary-container">
+            {% for c in artisan_profile.categories.all|slice:":1" %}{{ c.name }} Pro{% empty %}Artisan{% endfor %}
+          </p>
+        </div>
+      </div>
+      <form method="post" action="{% url 'accounts:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="w-full block text-center text-on-primary-container hover:text-white text-label-sm py-2 hover:bg-white/5 rounded-lg transition-colors bg-transparent border-0 cursor-pointer">
+          Se déconnecter
+        </button>
+      </form>
     </div>
-    {% else %}
-    <div class="bg-white rounded-2xl p-12 text-center border border-gray-200">
-        <span class="text-6xl">📋</span>
-        <p class="text-gray-500 mt-4">Aucune mission dans cette catégorie.</p>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 ml-64 p-8">
+
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+      <div>
+        <h1 class="font-display text-headline-lg text-on-surface">Bonjour, {{ request.user.full_name|cut:" "|slice:":6" }} !</h1>
+        <p class="font-sans text-body-md text-on-surface-variant mt-1">Voici vos activités à Abidjan.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="relative w-11 h-11 rounded-full bg-white profile-shadow flex items-center justify-center hover:bg-surface-container transition-colors">
+          <span class="material-symbols-outlined text-on-surface">notifications</span>
+          <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-abidjan-orange-vibrant rounded-full border-2 border-white"></span>
+        </button>
+        <button class="bg-primary text-white px-5 py-2.5 rounded-lg font-sans text-label-md hover:bg-primary-container transition-colors">
+          Modifier dispo
+        </button>
+      </div>
+    </header>
+
+    <!-- STATS -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-8">
+      <div class="bg-white rounded-xl p-6 profile-shadow flex items-start justify-between">
+        <div>
+          <p class="font-sans text-label-md text-on-surface-variant mb-2">Missions réussies</p>
+          <p class="font-display text-display-lg font-bold text-on-surface">{{ stats.completed }}</p>
+        </div>
+        <div class="w-12 h-12 rounded-full bg-trust-teal/10 flex items-center justify-center">
+          <span class="material-symbols-outlined filled-icon text-trust-teal">verified</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl p-6 profile-shadow flex items-start justify-between">
+        <div>
+          <p class="font-sans text-label-md text-on-surface-variant mb-2">Note moyenne</p>
+          <p class="font-display text-display-lg font-bold text-on-surface">{{ artisan_profile.average_rating|default:"—" }}<span class="text-headline-md text-on-surface-variant">/5</span></p>
+        </div>
+        <div class="w-12 h-12 rounded-full bg-abidjan-orange-vibrant/10 flex items-center justify-center">
+          <span class="material-symbols-outlined filled-icon text-abidjan-orange-vibrant">star</span>
+        </div>
+      </div>
+
+      <div class="bg-primary-container rounded-xl p-6 text-white flex items-start justify-between">
+        <div>
+          <p class="font-sans text-label-md text-on-primary-container mb-2">Revenus (FCFA)</p>
+          <p class="font-display text-display-lg font-bold text-white">{{ total_revenue|stringformat:"d" }}</p>
+        </div>
+        <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+          <span class="material-symbols-outlined text-white">account_balance_wallet</span>
+        </div>
+      </div>
     </div>
-    {% endif %}
+
+    <!-- PENDING TABLE + WEEK CHART -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter mb-8">
+
+      <div class="lg:col-span-2 bg-white rounded-xl profile-shadow overflow-hidden">
+        <div class="flex justify-between items-center p-5 border-b border-outline-variant/30">
+          <h2 class="font-display text-headline-md text-on-surface">
+            {% if status_filter == 'ACCEPTED' %}Demandes acceptées
+            {% elif status_filter == 'COMPLETED' %}Missions terminées
+            {% elif status_filter == 'REJECTED' %}Demandes refusées
+            {% else %}Demandes en attente{% endif %}
+          </h2>
+          <div class="flex gap-3">
+            <a href="{% url 'services:artisan_dashboard' %}?status=PENDING"
+               class="text-label-sm {% if status_filter == 'PENDING' %}text-abidjan-orange-vibrant font-bold{% else %}text-on-surface-variant hover:text-abidjan-orange-vibrant{% endif %}">En attente</a>
+            <a href="{% url 'services:artisan_dashboard' %}?status=ACCEPTED"
+               class="text-label-sm {% if status_filter == 'ACCEPTED' %}text-abidjan-orange-vibrant font-bold{% else %}text-on-surface-variant hover:text-abidjan-orange-vibrant{% endif %}">Acceptées</a>
+            <a href="{% url 'services:artisan_dashboard' %}?status=COMPLETED"
+               class="text-label-sm {% if status_filter == 'COMPLETED' %}text-abidjan-orange-vibrant font-bold{% else %}text-on-surface-variant hover:text-abidjan-orange-vibrant{% endif %}">Terminées</a>
+          </div>
+        </div>
+
+        {% if pending_requests %}
+        <table class="w-full">
+          <thead class="bg-surface-container-low">
+            <tr class="text-left">
+              <th class="px-5 py-3 font-sans text-label-sm text-on-surface-variant">Client</th>
+              <th class="px-5 py-3 font-sans text-label-sm text-on-surface-variant">Service &amp; Lieu</th>
+              <th class="px-5 py-3 font-sans text-label-sm text-on-surface-variant">Budget</th>
+              <th class="px-5 py-3 font-sans text-label-sm text-on-surface-variant text-center">{% if status_filter == 'PENDING' %}Actions{% else %}Statut{% endif %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in pending_requests %}
+            <tr class="border-t border-outline-variant/20">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-primary-container text-white flex items-center justify-center font-bold text-label-sm">
+                    {{ r.client.full_name|slice:":2"|upper }}
+                  </div>
+                  <div>
+                    <p class="font-sans font-bold text-label-md text-on-surface">{{ r.client.full_name }}</p>
+                    <p class="font-sans text-label-sm text-on-surface-variant">{{ r.created_at|timesince }}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-5 py-4">
+                <p class="font-sans text-label-md text-on-surface">{{ r.title|truncatewords:3 }}</p>
+                <p class="font-sans text-label-sm text-on-surface-variant flex items-center gap-1 mt-1">
+                  <span class="material-symbols-outlined text-[14px]">location_on</span>
+                  {{ r.address|truncatewords:2 }}
+                </p>
+              </td>
+              <td class="px-5 py-4">
+                <p class="font-sans font-bold text-label-md text-on-surface">{{ r.budget_min }} F</p>
+              </td>
+              <td class="px-5 py-4">
+                <div class="flex gap-2 justify-center">
+                  {% if r.status == 'PENDING' %}
+                  <button hx-post="{% url 'services:update_status' pk=r.pk action='accept' %}"
+                          hx-target="closest tr" hx-swap="outerHTML"
+                          class="w-9 h-9 rounded-full bg-trust-teal/10 hover:bg-trust-teal text-trust-teal hover:text-white flex items-center justify-center transition-colors"
+                          title="Accepter">
+                    <span class="material-symbols-outlined text-[18px]">check</span>
+                  </button>
+                  <button hx-post="{% url 'services:update_status' pk=r.pk action='reject' %}"
+                          hx-target="closest tr" hx-swap="outerHTML"
+                          hx-confirm="Refuser cette demande ?"
+                          class="w-9 h-9 rounded-full bg-error/10 hover:bg-error text-error hover:text-white flex items-center justify-center transition-colors"
+                          title="Refuser">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                  </button>
+                  {% elif r.status == 'ACCEPTED' %}
+                  <button hx-post="{% url 'services:update_status' pk=r.pk action='complete' %}"
+                          hx-target="closest tr" hx-swap="outerHTML"
+                          hx-confirm="Marquer cette mission comme terminée ?"
+                          class="inline-flex items-center gap-1 bg-trust-teal/10 hover:bg-trust-teal text-trust-teal hover:text-white px-3 py-1.5 rounded-full text-label-sm font-bold transition-colors"
+                          title="Terminer">
+                    <span class="material-symbols-outlined text-[14px]">check_circle</span>
+                    Terminer
+                  </button>
+                  {% elif r.status == 'COMPLETED' %}
+                  <span class="inline-flex items-center gap-1 bg-trust-teal/10 text-trust-teal px-3 py-1.5 rounded-full text-label-sm font-bold">
+                    <span class="material-symbols-outlined filled-icon text-[14px]">verified</span>Terminée
+                  </span>
+                  {% elif r.status == 'REJECTED' %}
+                  <span class="inline-flex items-center gap-1 bg-error/10 text-error px-3 py-1.5 rounded-full text-label-sm font-bold">
+                    <span class="material-symbols-outlined text-[14px]">close</span>Refusée
+                  </span>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="text-center py-12">
+          <span class="material-symbols-outlined text-[48px] text-outline-variant mb-3 block">inbox</span>
+          <p class="font-sans text-body-md text-on-surface-variant">Aucune demande dans cette catégorie.</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Chart Missions ce mois -->
+      <div class="bg-white rounded-xl p-5 profile-shadow">
+        <h2 class="font-display text-headline-md text-on-surface mb-5">Missions cette semaine</h2>
+        <div class="flex items-end justify-between gap-2 h-40 mb-2">
+          {% for d in week_data %}
+          <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+            <span class="font-sans text-label-sm font-bold text-on-surface">{{ d.count }}</span>
+            <div class="w-full rounded-t-lg transition-all {% if d.is_today %}bg-abidjan-orange-vibrant{% else %}bg-surface-container-high{% endif %}"
+                 style="height: {% if d.height_pct < 5 %}5{% else %}{{ d.height_pct }}{% endif %}%;"></div>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="flex items-end justify-between gap-2">
+          {% for d in week_data %}
+          <div class="flex-1 text-center">
+            <span class="font-sans text-label-sm {% if d.is_today %}text-abidjan-orange-vibrant font-bold{% else %}text-on-surface-variant{% endif %}">{{ d.label }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTES -->
+    <div class="bg-white rounded-xl p-5 profile-shadow">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="font-display text-headline-md text-on-surface">Alertes récentes</h2>
+        <span class="bg-error text-white text-label-sm font-bold px-2 py-0.5 rounded-full">2</span>
+      </div>
+      <div class="space-y-3">
+        <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-surface-container-low transition-colors">
+          <div class="w-10 h-10 rounded-lg bg-abidjan-orange-vibrant/10 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-abidjan-orange-vibrant">rate_review</span>
+          </div>
+          <div class="flex-1">
+            <p class="font-sans text-body-md text-on-surface">Nouvel avis 5 étoiles reçu d'un client.</p>
+            <p class="font-sans text-label-sm text-on-surface-variant">Il y a 2h</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-surface-container-low transition-colors">
+          <div class="w-10 h-10 rounded-lg bg-verified-blue/10 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-verified-blue">mail</span>
+          </div>
+          <div class="flex-1">
+            <p class="font-sans text-body-md text-on-surface">Nouveau message concernant une demande.</p>
+            <p class="font-sans text-label-sm text-on-surface-variant">Il y a 4h</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
 </div>
 {% endblock %}

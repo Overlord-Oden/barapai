@@ -1,48 +1,163 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Mes demandes{% endblock %}
+{% block title %}Mes demandes · Barapai{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 py-10">
-    <h1 class="text-3xl font-bold mb-6">Mes demandes</h1>
+
+<section class="bg-primary-container py-12">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+    <h1 class="font-display font-bold text-ivory-white" style="font-size:1.75rem">Mes demandes</h1>
+    <p class="font-sans text-on-primary-container mt-2">Suivi de tes interventions et de leur statut.</p>
+  </div>
+</section>
+
+<section class="bg-background py-10">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+
+    <!-- Filtre par statut -->
+    <div class="flex flex-wrap gap-2 mb-8">
+      <a href="{% url 'services:my_requests' %}"
+         class="px-4 py-2 rounded-xl font-sans transition-all {% if not status_filter %}bg-abidjan-orange-vibrant text-white{% else %}bg-white text-on-surface-variant hover:border-abidjan-orange-vibrant border border-outline-variant/30 profile-shadow{% endif %}"
+         style="font-size:.8rem;font-weight:600">
+        Toutes
+      </a>
+      {% for val, lbl in statuses %}
+      <a href="{% url 'services:my_requests' %}?status={{ val }}"
+         class="px-4 py-2 rounded-xl font-sans transition-all {% if status_filter == val %}bg-abidjan-orange-vibrant text-white{% else %}bg-white text-on-surface-variant hover:border-abidjan-orange-vibrant border border-outline-variant/30 profile-shadow{% endif %}"
+         style="font-size:.8rem;font-weight:600">
+        {{ lbl }}
+      </a>
+      {% endfor %}
+    </div>
 
     {% if requests_list %}
-    <div class="space-y-3">
-        {% for req in requests_list %}
-        <div class="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition">
-            <div class="flex justify-between items-start mb-2 gap-3">
-                <h3 class="font-semibold text-lg">{{ req.title }}</h3>
-                {% if req.status == 'PENDING' %}
-                    <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full whitespace-nowrap">{{ req.get_status_display }}</span>
-                {% elif req.status == 'ACCEPTED' %}
-                    <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full whitespace-nowrap">{{ req.get_status_display }}</span>
-                {% elif req.status == 'COMPLETED' %}
-                    <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full whitespace-nowrap">{{ req.get_status_display }}</span>
-                {% else %}
-                    <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full whitespace-nowrap">{{ req.get_status_display }}</span>
-                {% endif %}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      {% for r in requests_list %}
+      <div class="bg-white rounded-2xl p-6 profile-shadow flex flex-col gap-4">
+
+        <!-- Header : artisan + statut -->
+        <div class="flex justify-between items-start">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-primary-container text-ivory-white flex items-center justify-center font-bold shrink-0" style="font-size:1.1rem">
+              {% if r.artisan.profile_picture %}
+                <img src="{{ r.artisan.profile_picture.url }}" class="w-full h-full rounded-xl object-cover">
+              {% else %}{{ r.artisan.user.full_name|slice:":1"|upper }}{% endif %}
             </div>
-            <p class="text-sm text-gray-600 mb-2">
-                Artisan : <strong>{{ req.artisan.user.full_name }}</strong> · {{ req.category.icon }} {{ req.category.name }}
-            </p>
-            <p class="text-sm text-gray-700 mb-3">{{ req.description|truncatewords:30 }}</p>
-            <div class="flex justify-between items-center text-xs text-gray-500">
-                <span>{{ req.created_at|date:"d M Y H:i" }}</span>
-                {% if req.budget_min and req.budget_max %}
-                    <span>Budget : {{ req.budget_min }} – {{ req.budget_max }} FCFA</span>
-                {% endif %}
+            <div>
+              <p class="font-sans font-bold text-on-surface" style="font-size:.9rem">{{ r.artisan.user.full_name }}</p>
+              <p class="font-sans text-on-surface-variant" style="font-size:.75rem">{{ r.category.name }}</p>
             </div>
+          </div>
+
+          {% if r.status == 'PENDING' %}
+            <span class="inline-flex items-center gap-1 bg-abidjan-orange-vibrant/10 text-abidjan-orange-vibrant px-3 py-1 rounded-full font-sans font-bold whitespace-nowrap" style="font-size:.72rem">
+              <span class="material-symbols-outlined" style="font-size:13px">schedule</span>En attente
+            </span>
+          {% elif r.status == 'ACCEPTED' %}
+            <span class="inline-flex items-center gap-1 bg-verified-blue/10 text-verified-blue px-3 py-1 rounded-full font-sans font-bold whitespace-nowrap" style="font-size:.72rem">
+              <span class="material-symbols-outlined" style="font-size:13px">check</span>Acceptée
+            </span>
+          {% elif r.status == 'COMPLETED' %}
+            <span class="inline-flex items-center gap-1 bg-trust-teal/10 text-trust-teal px-3 py-1 rounded-full font-sans font-bold whitespace-nowrap" style="font-size:.72rem">
+              <span class="material-symbols-outlined filled-icon" style="font-size:13px">verified</span>Terminée
+            </span>
+          {% elif r.status == 'REJECTED' %}
+            <span class="inline-flex items-center gap-1 bg-error/10 text-error px-3 py-1 rounded-full font-sans font-bold whitespace-nowrap" style="font-size:.72rem">
+              <span class="material-symbols-outlined" style="font-size:13px">close</span>Refusée
+            </span>
+          {% elif r.status == 'CANCELLED' %}
+            <span class="inline-flex items-center gap-1 bg-outline-variant/20 text-on-surface-variant px-3 py-1 rounded-full font-sans font-bold whitespace-nowrap" style="font-size:.72rem">
+              <span class="material-symbols-outlined" style="font-size:13px">cancel</span>Annulée
+            </span>
+          {% endif %}
         </div>
-        {% endfor %}
+
+        <!-- Contenu -->
+        <div>
+          <h3 class="font-display font-bold text-on-surface mb-1" style="font-size:1rem">{{ r.title }}</h3>
+          <p class="font-sans text-on-surface-variant leading-relaxed" style="font-size:.85rem">{{ r.description|truncatewords:18 }}</p>
+        </div>
+
+        <!-- Meta -->
+        <div class="flex flex-wrap gap-3 text-on-surface-variant pt-3 border-t border-outline-variant/20" style="font-size:.75rem">
+          {% if r.budget_min %}
+          <span class="inline-flex items-center gap-1">
+            <span class="material-symbols-outlined" style="font-size:14px">payments</span>
+            {{ r.budget_min|floatformat:"0" }} – {{ r.budget_max|floatformat:"0" }} FCFA
+          </span>
+          {% endif %}
+          {% if r.address %}
+          <span class="inline-flex items-center gap-1">
+            <span class="material-symbols-outlined" style="font-size:14px">location_on</span>
+            {{ r.address|truncatechars:20 }}
+          </span>
+          {% endif %}
+          <span class="inline-flex items-center gap-1">
+            <span class="material-symbols-outlined" style="font-size:14px">calendar_today</span>
+            {{ r.created_at|date:"d M Y" }}
+          </span>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-wrap gap-2 pt-1">
+          <a href="{% url 'services:conversation' pk=r.pk %}"
+             class="inline-flex items-center gap-1.5 bg-surface-container hover:bg-primary-container/10 text-on-surface px-4 py-2 rounded-xl font-sans transition-colors" style="font-size:.8rem">
+            <span class="material-symbols-outlined" style="font-size:16px">chat</span>
+            Messages
+          </a>
+          {% if r.status == 'COMPLETED' and not r.review %}
+          <a href="{% url 'services:create_review' pk=r.pk %}"
+             class="inline-flex items-center gap-1.5 bg-abidjan-orange-vibrant text-white hover:bg-secondary px-4 py-2 rounded-xl font-sans transition-colors" style="font-size:.8rem">
+            <span class="material-symbols-outlined filled-icon" style="font-size:16px">star</span>
+            Laisser un avis
+          </a>
+          {% elif r.status == 'COMPLETED' and r.review %}
+          <span class="inline-flex items-center gap-1.5 bg-trust-teal/10 text-trust-teal px-4 py-2 rounded-xl font-sans" style="font-size:.8rem">
+            <span class="material-symbols-outlined filled-icon" style="font-size:16px">star</span>
+            Avis déposé ({{ r.review.rating }}/5)
+          </span>
+          {% endif %}
+          <a href="{% url 'catalog:artisan_detail' pk=r.artisan.pk %}"
+             class="inline-flex items-center gap-1.5 border border-outline-variant/30 text-on-surface-variant hover:border-abidjan-orange-vibrant hover:text-abidjan-orange-vibrant px-4 py-2 rounded-xl font-sans transition-colors" style="font-size:.8rem">
+            <span class="material-symbols-outlined" style="font-size:16px">person</span>
+            Voir le profil
+          </a>
+        </div>
+
+      </div>
+      {% endfor %}
     </div>
     {% else %}
-    <div class="bg-white rounded-2xl p-12 text-center border border-gray-200">
-        <span class="text-6xl">📭</span>
-        <p class="text-gray-500 mt-4">Tu n'as pas encore fait de demande.</p>
-        <a href="{% url 'catalog:artisans_list' %}" class="inline-block mt-4 bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition">
-            Trouver un artisan
+    <div class="bg-white rounded-2xl p-16 text-center profile-shadow max-w-2xl mx-auto">
+      <span class="material-symbols-outlined text-outline-variant block mb-4" style="font-size:64px">assignment</span>
+      <h3 class="font-display font-bold text-on-surface mb-3" style="font-size:1.25rem">
+        {% if status_filter %}Aucune demande dans ce statut{% else %}Aucune demande{% endif %}
+      </h3>
+      <p class="font-sans text-on-surface-variant mb-6" style="font-size:.9rem">
+        {% if status_filter %}
+          Essaie un autre filtre ou reviens plus tard.
+        {% else %}
+          Tu n'as pas encore envoyé de demande. Trouve ton artisan et lance-toi !
+        {% endif %}
+      </p>
+      <div class="flex flex-wrap gap-3 justify-center">
+        {% if status_filter %}
+        <a href="{% url 'services:my_requests' %}"
+           class="inline-flex items-center gap-2 border border-outline-variant/40 text-on-surface px-5 py-3 rounded-xl font-sans hover:bg-surface-container transition-colors" style="font-size:.875rem">
+          Voir toutes les demandes
         </a>
+        {% endif %}
+        <a href="{% url 'catalog:artisans_list' %}"
+           class="inline-flex items-center gap-2 bg-abidjan-orange-vibrant text-white px-5 py-3 rounded-xl font-sans font-bold hover:bg-secondary transition-all" style="font-size:.875rem">
+          <span class="material-symbols-outlined" style="font-size:18px">search</span>
+          Trouver un artisan
+        </a>
+      </div>
     </div>
     {% endif %}
-</div>
+
+  </div>
+</section>
+
 {% endblock %}

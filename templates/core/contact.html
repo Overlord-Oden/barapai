@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact · Barapai{% endblock %}
+
+{% block content %}
+<section class="bg-primary-container py-14">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
+    <h1 class="font-display font-bold text-ivory-white mb-3" style="font-size:2.2rem">Contacte-nous</h1>
+    <p class="font-sans text-on-primary-container max-w-xl mx-auto">Une question ? Un problème ? Notre équipe répond dans les 24h.</p>
+  </div>
+</section>
+
+<section class="bg-background py-16">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+
+      <!-- Formulaire -->
+      <div class="bg-white rounded-2xl p-8 profile-shadow">
+        <h2 class="font-display font-bold text-on-surface mb-6" style="font-size:1.25rem">Envoie-nous un message</h2>
+        <form class="form-styled space-y-4">
+          {% csrf_token %}
+          <div><label>Nom complet</label><input type="text" placeholder="Ton nom"></div>
+          <div><label>Email</label><input type="email" placeholder="ton@email.com"></div>
+          <div><label>Sujet</label>
+            <select><option>Question générale</option><option>Problème technique</option><option>Signaler un artisan</option><option>Partenariat</option></select>
+          </div>
+          <div><label>Message</label><textarea rows="5" placeholder="Décris ta demande…"></textarea></div>
+          <button type="submit" class="w-full bg-abidjan-orange-vibrant text-white py-3.5 rounded-xl font-sans font-bold hover:bg-secondary transition-all">
+            Envoyer le message
+          </button>
+        </form>
+      </div>
+
+      <!-- Infos contact -->
+      <div class="space-y-6">
+        <div class="bg-white rounded-2xl p-6 profile-shadow flex items-start gap-4">
+          <div class="w-12 h-12 rounded-xl bg-abidjan-orange-vibrant/10 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-abidjan-orange-vibrant">mail</span>
+          </div>
+          <div>
+            <h3 class="font-display font-bold text-on-surface mb-1">Email</h3>
+            <p class="font-sans text-on-surface-variant" style="font-size:.9rem">contact@barapai.ci</p>
+            <p class="font-sans text-on-surface-variant" style="font-size:.8rem">Réponse sous 24h en jours ouvrés</p>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 profile-shadow flex items-start gap-4">
+          <div class="w-12 h-12 rounded-xl bg-trust-teal/10 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-trust-teal">smartphone</span>
+          </div>
+          <div>
+            <h3 class="font-display font-bold text-on-surface mb-1">WhatsApp</h3>
+            <p class="font-sans text-on-surface-variant" style="font-size:.9rem">+225 07 00 00 00 00</p>
+            <p class="font-sans text-on-surface-variant" style="font-size:.8rem">Lun – Sam · 8h – 20h</p>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 profile-shadow flex items-start gap-4">
+          <div class="w-12 h-12 rounded-xl bg-verified-blue/10 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-verified-blue">location_on</span>
+          </div>
+          <div>
+            <h3 class="font-display font-bold text-on-surface mb-1">Adresse</h3>
+            <p class="font-sans text-on-surface-variant" style="font-size:.9rem">Cocody, Abidjan</p>
+            <p class="font-sans text-on-surface-variant" style="font-size:.8rem">Côte d'Ivoire</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}

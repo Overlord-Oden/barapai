@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}FAQ · Barapai{% endblock %}
+
+{% block content %}
+<section class="bg-primary-container py-14">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
+    <h1 class="font-display font-bold text-ivory-white mb-3" style="font-size:2.2rem">Questions fréquentes</h1>
+    <p class="font-sans text-on-primary-container max-w-xl mx-auto">Tout ce que tu dois savoir sur Barapai.</p>
+  </div>
+</section>
+
+<section class="bg-background py-16">
+  <div class="max-w-2xl mx-auto px-margin-mobile md:px-margin-desktop space-y-4" x-data="{ open: null }">
+
+    {% for q, a in faq_items %}
+    <div class="bg-white rounded-2xl profile-shadow overflow-hidden">
+      <button type="button"
+              @click="open = open === {{ forloop.counter }} ? null : {{ forloop.counter }}"
+              class="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-surface-container/50 transition-colors">
+        <span class="font-display font-bold text-on-surface" style="font-size:1rem">{{ q }}</span>
+        <span class="material-symbols-outlined text-abidjan-orange-vibrant shrink-0 ml-4 transition-transform"
+              :class="open === {{ forloop.counter }} ? 'rotate-180' : ''" style="font-size:20px">expand_more</span>
+      </button>
+      <div x-show="open === {{ forloop.counter }}" x-collapse class="px-6 pb-5">
+        <p class="font-sans text-on-surface-variant leading-relaxed" style="font-size:.9rem">{{ a }}</p>
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+</section>
+{% endblock %}

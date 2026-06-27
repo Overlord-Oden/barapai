@@ -1,39 +1,44 @@
-<footer class="bg-gray-900 text-gray-300 mt-16">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="grid md:grid-cols-3 gap-8">
-            <div>
-                <div class="flex items-center gap-2 mb-3">
-                    <span class="text-2xl">🔨</span>
-                    <span class="text-xl font-bold text-orange-500">Barapai</span>
-                </div>
-                <p class="text-sm text-gray-400 italic">
-                    "Seul le travail paie."
-                </p>
-                <p class="text-sm text-gray-500 mt-2">
-                    La marketplace des artisans de Côte d'Ivoire.
-                </p>
-            </div>
+<footer class="bg-primary-container w-full mt-auto">
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop py-12 max-w-container-max mx-auto">
 
-            <div>
-                <h3 class="text-white font-semibold mb-3">Navigation</h3>
-                <ul class="space-y-2 text-sm">
-                    <li><a href="#" class="hover:text-orange-500">Accueil</a></li>
-                    <li><a href="#" class="hover:text-orange-500">Trouver un artisan</a></li>
-                    <li><a href="#" class="hover:text-orange-500">Devenir artisan</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h3 class="text-white font-semibold mb-3">Contact</h3>
-                <ul class="space-y-2 text-sm text-gray-400">
-                    <li>📍 Abidjan, Côte d'Ivoire</li>
-                    <li>📧 contact@barapai.ci</li>
-                </ul>
-            </div>
+    <div class="space-y-4">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="w-8 h-8 bg-abidjan-orange-vibrant rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined filled-icon text-white" style="font-size:17px">handyman</span>
         </div>
-
-        <div class="border-t border-gray-800 mt-8 pt-6 text-center text-sm text-gray-500">
-            © 2026 Barapai. Tous droits réservés.
-        </div>
+        <span class="font-display font-bold text-headline-md leading-none tracking-tight">
+          <span class="text-ivory-white">Bara</span><span class="text-abidjan-orange-vibrant">pai</span>
+        </span>
+      </div>
+      <p class="font-sans text-body-md text-on-primary-container">
+        Seul le travail paie. La plateforme n°1 des artisans qualifiés en Côte d'Ivoire.
+      </p>
     </div>
+
+    <div class="flex flex-col gap-2">
+      <h4 class="font-sans text-label-md text-abidjan-orange-vibrant mb-2">Plateforme</h4>
+      <a href="{% url 'catalog:artisans_list' %}" class="text-on-primary-container hover:text-abidjan-orange-vibrant transition-colors text-body-md">Trouver un artisan</a>
+      <a href="{% url 'accounts:signup' %}" class="text-on-primary-container hover:text-abidjan-orange-vibrant transition-colors text-body-md">Devenir artisan</a>
+      <a href="#" class="text-on-primary-container hover:text-abidjan-orange-vibrant transition-colors text-body-md">Comment ça marche</a>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <h4 class="font-sans text-label-md text-abidjan-orange-vibrant mb-2">Support</h4>
+      <a href="{% url 'core:contact' %}" class="text-on-primary-container hover:text-abidjan-orange-vibrant transition-colors text-body-md">Contact</a>
+      <a href="{% url 'core:faq' %}" class="text-on-primary-container hover:text-abidjan-orange-vibrant transition-colors text-body-md">FAQ</a>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <h4 class="font-sans text-label-md text-abidjan-orange-vibrant mb-2">Légal</h4>
+      <a href="{% url 'core:privacy' %}" class="text-on-primary-container hover:text-abidjan-orange-vibrant transition-colors text-body-md">Confidentialité</a>
+      <a href="{% url 'core:cgu' %}" class="text-on-primary-container hover:text-abidjan-orange-vibrant transition-colors text-body-md">CGU</a>
+    </div>
+  </div>
+
+  <div class="border-t border-white/10">
+    <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-4 flex flex-col md:flex-row justify-between items-center gap-2">
+      <p class="font-sans text-label-sm text-on-primary-container">© 2026 Barapai · Abidjan, Côte d'Ivoire</p>
+      <p class="font-sans text-label-sm italic text-on-primary-container">"Seul le travail paie"</p>
+    </div>
+  </div>
 </footer>

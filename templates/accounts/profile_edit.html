@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mon profil · Barapai{% endblock %}
+
+{% block content %}
+<section class="bg-primary-container py-10">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+    <div class="flex items-center gap-4">
+      <div class="w-14 h-14 rounded-2xl bg-abidjan-orange-vibrant/20 flex items-center justify-center">
+        <span class="material-symbols-outlined text-abidjan-orange-vibrant" style="font-size:28px">manage_accounts</span>
+      </div>
+      <div>
+        <h1 class="font-display font-bold text-ivory-white" style="font-size:1.75rem">Mon profil</h1>
+        <p class="font-sans text-on-primary-container">Mets à jour tes informations personnelles</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-background py-12">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- Sidebar navigation -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-2xl p-4 profile-shadow sticky top-24">
+          <nav class="space-y-1">
+            <a href="#infos" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-abidjan-orange-vibrant/8 text-abidjan-orange-vibrant font-sans font-bold" style="font-size:.875rem">
+              <span class="material-symbols-outlined" style="font-size:20px">person</span>
+              Informations personnelles
+            </a>
+            {% if artisan_form %}
+            <a href="#artisan" class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container transition-colors font-sans" style="font-size:.875rem">
+              <span class="material-symbols-outlined" style="font-size:20px">engineering</span>
+              Profil artisan
+            </a>
+            {% endif %}
+            <a href="{% url 'accounts:password_reset' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container transition-colors font-sans" style="font-size:.875rem">
+              <span class="material-symbols-outlined" style="font-size:20px">lock_reset</span>
+              Changer le mot de passe
+            </a>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Formulaires -->
+      <div class="lg:col-span-2 space-y-6">
+
+        {% if messages %}
+        {% for msg in messages %}
+        <div class="flex items-center gap-3 bg-trust-teal/10 border border-trust-teal/30 text-trust-teal rounded-xl px-4 py-3 font-sans" style="font-size:.875rem">
+          <span class="material-symbols-outlined filled-icon" style="font-size:18px">check_circle</span>
+          {{ msg }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+          {% csrf_token %}
+
+          <!-- Infos personnelles -->
+          <div id="infos" class="bg-white rounded-2xl p-6 profile-shadow">
+            <h2 class="font-display font-bold text-on-surface mb-5" style="font-size:1.1rem">
+              <span class="material-symbols-outlined text-abidjan-orange-vibrant align-middle mr-1" style="font-size:20px">person</span>
+              Informations personnelles
+            </h2>
+            <div class="form-styled space-y-4">
+              <div>
+                <label>Nom complet</label>
+                <input type="text" name="full_name" value="{{ user_form.full_name.value|default:'' }}" required placeholder="Ton nom complet">
+                {% if user_form.full_name.errors %}<p class="text-error text-label-sm mt-1">{{ user_form.full_name.errors.0 }}</p>{% endif %}
+              </div>
+              <div>
+                <label>Email</label>
+                <input type="email" name="email" value="{{ user_form.email.value|default:'' }}" required placeholder="ton@email.com">
+                {% if user_form.email.errors %}<p class="text-error text-label-sm mt-1">{{ user_form.email.errors.0 }}</p>{% endif %}
+              </div>
+              <div>
+                <label>Téléphone</label>
+                <input type="tel" name="phone" value="{{ user_form.phone.value|default:'' }}" placeholder="+225 07 00 00 00 00">
+                {% if user_form.phone.errors %}<p class="text-error text-label-sm mt-1">{{ user_form.phone.errors.0 }}</p>{% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Profil artisan (conditionnel) -->
+          {% if artisan_form %}
+          <div id="artisan" class="bg-white rounded-2xl p-6 profile-shadow">
+            <h2 class="font-display font-bold text-on-surface mb-5" style="font-size:1.1rem">
+              <span class="material-symbols-outlined text-abidjan-orange-vibrant align-middle mr-1" style="font-size:20px">engineering</span>
+              Profil artisan
+            </h2>
+            <div class="form-styled space-y-4">
+
+              <!-- Photo de profil -->
+              <div>
+                <label>Photo de profil</label>
+                <div class="flex items-center gap-4 mt-2">
+                  {% if request.user.artisan_profile.profile_picture %}
+                  <img src="{{ request.user.artisan_profile.profile_picture.url }}"
+                       class="w-16 h-16 rounded-xl object-cover border border-outline-variant/30">
+                  {% else %}
+                  <div class="w-16 h-16 rounded-xl bg-primary-container flex items-center justify-center text-white font-bold" style="font-size:1.4rem">
+                    {{ request.user.full_name|slice:":1"|upper }}
+                  </div>
+                  {% endif %}
+                  <input type="file" name="profile_picture" accept="image/*"
+                         class="text-on-surface-variant" style="font-size:.875rem">
+                </div>
+              </div>
+
+              <div>
+                <label>Biographie</label>
+                <textarea name="bio" rows="4" placeholder="Décris ton expertise, ton expérience, ce qui te différencie...">{{ artisan_form.bio.value|default:'' }}</textarea>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label>Années d'expérience</label>
+                  <input type="number" name="years_experience" min="0" max="50" value="{{ artisan_form.years_experience.value|default:0 }}">
+                </div>
+                <div>
+                  <label>Tarif horaire (FCFA)</label>
+                  <input type="number" name="hourly_rate" value="{{ artisan_form.hourly_rate.value|default:'' }}" placeholder="5000">
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label>Ville</label>
+                  <input type="text" name="city" value="{{ artisan_form.city.value|default:'Abidjan' }}" placeholder="Abidjan">
+                </div>
+                <div>
+                  <label>Quartier</label>
+                  <input type="text" name="neighborhood" value="{{ artisan_form.neighborhood.value|default:'' }}" placeholder="Cocody, Yopougon...">
+                </div>
+              </div>
+
+              <!-- Catégories -->
+              <div>
+                <label class="block mb-2">Catégories de métiers</label>
+                <div class="grid grid-cols-2 gap-2">
+                  {% for checkbox in artisan_form.categories %}
+                  <label class="flex items-center gap-2 cursor-pointer group">
+                    {{ checkbox.tag }}
+                    <span class="font-sans text-on-surface group-hover:text-abidjan-orange-vibrant transition-colors" style="font-size:.875rem">{{ checkbox.choice_label }}</span>
+                  </label>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <!-- Disponibilité -->
+              <div>
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" name="is_available" {% if artisan_form.is_available.value %}checked{% endif %}
+                         class="w-5 h-5 rounded accent-abidjan-orange-vibrant">
+                  <span class="font-sans text-on-surface" style="font-size:.875rem">Je suis disponible pour de nouvelles missions</span>
+                </label>
+              </div>
+
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Bouton save -->
+          <div class="flex justify-end">
+            <button type="submit"
+                    class="inline-flex items-center gap-2 bg-abidjan-orange-vibrant text-white px-8 py-3.5 rounded-xl font-sans font-bold hover:bg-secondary active:scale-[.97] transition-all shadow-lg shadow-abidjan-orange-vibrant/25"
+                    style="font-size:.875rem">
+              <span class="material-symbols-outlined" style="font-size:20px">save</span>
+              Enregistrer les modifications
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
