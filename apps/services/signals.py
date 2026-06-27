@@ -1,9 +1,13 @@
+import logging
+
 from django.core.mail import send_mail
 from django.db.models import Avg
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 from .models import Review, ServiceRequest
+
+logger = logging.getLogger(__name__)
 
 
 def _update_average_rating(artisan_profile):
@@ -36,8 +40,20 @@ def on_service_request_changed(sender, instance, created, **kwargs):
     client_name = instance.client.full_name
     title = instance.title
 
+    def _send(subject, message, recipient):
+        try:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=None,
+                recipient_list=[recipient],
+                fail_silently=False,
+            )
+        except Exception as exc:
+            logger.error("Barapai email failed — %s → %s : %s", subject, recipient, exc)
+
     if created:
-        send_mail(
+        _send(
             subject=f"Nouvelle demande : {title}",
             message=(
                 f"Bonjour {artisan_name},\n\n"
@@ -46,9 +62,7 @@ def on_service_request_changed(sender, instance, created, **kwargs):
                 f"Connecte-toi à ton dashboard pour accepter ou refuser.\n\n"
                 f"— L'équipe Barapai"
             ),
-            from_email=None,
-            recipient_list=[artisan_email],
-            fail_silently=True,
+            recipient=artisan_email,
         )
         return
 
@@ -75,10 +89,4 @@ def on_service_request_changed(sender, instance, created, **kwargs):
 
     if instance.status in status_messages:
         recipient, subject, message = status_messages[instance.status]
-        send_mail(
-            subject=subject,
-            message=message,
-            from_email=None,
-            recipient_list=[recipient],
-            fail_silently=True,
-        )
+        _send(subject=subject, message=message, recipient=recipient)

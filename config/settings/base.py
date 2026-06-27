@@ -110,3 +110,18 @@ LOGOUT_REDIRECT_URL = 'core:home'
 # Email (override en dev.py et prod.py)
 DEFAULT_FROM_EMAIL = 'Barapai <noreply@barapai.ci>'
 EMAIL_SUBJECT_PREFIX = '[Barapai] '
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler'},
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+    'loggers': {
+        'services': {'handlers': ['console'], 'level': 'ERROR', 'propagate': False},
+    },
+}
