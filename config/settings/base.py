@@ -123,5 +123,6 @@ LOGGING = {
     },
     'loggers': {
         'services': {'handlers': ['console'], 'level': 'ERROR', 'propagate': False},
+        'core': {'handlers': ['console'], 'level': 'ERROR', 'propagate': False},
     },
 }

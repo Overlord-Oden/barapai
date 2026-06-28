@@ -35,13 +35,9 @@ X_FRAME_OPTIONS = 'DENY'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Email (Railway : configure EMAIL_HOST_USER et EMAIL_HOST_PASSWORD en variables d'env)
-EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
-EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-# L'expéditeur doit correspondre au compte Gmail authentifié
-DEFAULT_FROM_EMAIL = f'Barapai <{EMAIL_HOST_USER}>'
-SERVER_EMAIL = EMAIL_HOST_USER
+# Email : API HTTP Brevo (port 443, jamais bloqué sur Railway)
+# Plus besoin de SMTP — config: BREVO_API_KEY + BREVO_SENDER_EMAIL dans Railway
+EMAIL_BACKEND = 'core.email_backend.BrevoEmailBackend'
+BREVO_API_KEY = config('BREVO_API_KEY', default='')
+BREVO_SENDER_EMAIL = config('BREVO_SENDER_EMAIL', default='')
+DEFAULT_FROM_EMAIL = f'Barapai <{BREVO_SENDER_EMAIL}>'
