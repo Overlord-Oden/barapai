@@ -35,9 +35,8 @@ X_FRAME_OPTIONS = 'DENY'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Email : API HTTP Brevo (port 443, jamais bloqué sur Railway)
-# Plus besoin de SMTP — config: BREVO_API_KEY + BREVO_SENDER_EMAIL dans Railway
-EMAIL_BACKEND = 'core.email_backend.BrevoEmailBackend'
-BREVO_API_KEY = config('BREVO_API_KEY', default='')
-BREVO_SENDER_EMAIL = config('BREVO_SENDER_EMAIL', default='')
-DEFAULT_FROM_EMAIL = f'Barapai <{BREVO_SENDER_EMAIL}>'
+# Email : API HTTP SendGrid (port 443, jamais bloqué sur Railway)
+EMAIL_BACKEND = 'core.email_backend.SendGridEmailBackend'
+SENDGRID_API_KEY = config('SENDGRID_API_KEY', default='')
+SENDGRID_SENDER_EMAIL = config('SENDGRID_SENDER_EMAIL', default='')
+DEFAULT_FROM_EMAIL = f'Barapai <{SENDGRID_SENDER_EMAIL}>'
