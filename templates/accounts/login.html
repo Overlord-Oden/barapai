@@ -47,6 +47,10 @@
   {% if form.password.errors %}<p class="text-error text-label-sm mt-1">{{ form.password.errors.0 }}</p>{% endif %}
 </div>
 
+        <div class="flex justify-end">
+          <a href="{% url 'accounts:password_reset' %}" class="text-label-sm text-abidjan-orange-vibrant hover:underline">Mot de passe oublié ?</a>
+        </div>
+
         <button type="submit" class="w-full bg-abidjan-orange-vibrant text-white py-3 rounded-lg font-sans text-label-md font-bold hover:bg-secondary active:scale-[0.98] transition-all">
           Se connecter
         </button>
