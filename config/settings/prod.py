@@ -35,8 +35,8 @@ X_FRAME_OPTIONS = 'DENY'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Email : API HTTP SendGrid (port 443, jamais bloqué sur Railway)
-EMAIL_BACKEND = 'core.email_backend.SendGridEmailBackend'
-SENDGRID_API_KEY = config('SENDGRID_API_KEY', default='')
-SENDGRID_SENDER_EMAIL = config('SENDGRID_SENDER_EMAIL', default='')
-DEFAULT_FROM_EMAIL = f'Barapai <{SENDGRID_SENDER_EMAIL}>'
+# Email : API HTTP Resend (port 443, jamais bloqué sur Railway)
+EMAIL_BACKEND = 'core.email_backend.ResendEmailBackend'
+RESEND_API_KEY = config('RESEND_API_KEY', default='')
+RESEND_FROM_EMAIL = config('RESEND_FROM_EMAIL', default='Barapai <onboarding@resend.dev>')
+DEFAULT_FROM_EMAIL = RESEND_FROM_EMAIL

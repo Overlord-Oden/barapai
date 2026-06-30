@@ -13,9 +13,9 @@ class Command(BaseCommand):
         self.stdout.write('=== DIAGNOSTIC EMAIL ===')
         self.stdout.write(f"Backend   : {settings.EMAIL_BACKEND}")
         self.stdout.write(f"FROM      : {settings.DEFAULT_FROM_EMAIL}")
-        api_key = getattr(settings, 'SENDGRID_API_KEY', '')
-        self.stdout.write(f"SENDGRID KEY : {'OK (' + api_key[:12] + '...)' if api_key else 'VIDE - NON CONFIGURE'}")
-        sender_email = getattr(settings, 'SENDGRID_SENDER_EMAIL', '')
+        api_key = getattr(settings, 'RESEND_API_KEY', '')
+        self.stdout.write(f"RESEND KEY : {'OK (' + api_key[:8] + '...)' if api_key else 'VIDE - NON CONFIGURE'}")
+        sender_email = getattr(settings, 'RESEND_FROM_EMAIL', '')
         self.stdout.write(f"SENDER    : {sender_email or 'VIDE'}")
         self.stdout.write('')
 
