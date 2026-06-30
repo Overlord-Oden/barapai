@@ -52,9 +52,8 @@ class Command(BaseCommand):
             from django.contrib.auth.forms import PasswordResetForm
             from django.test import RequestFactory
 
-            request = RequestFactory().get('/')
-            request.META['SERVER_NAME'] = 'barapai.up.railway.app'
-            request.META['SERVER_PORT'] = '443'
+            host = settings.ALLOWED_HOSTS[0] if settings.ALLOWED_HOSTS else 'localhost'
+            request = RequestFactory().get('/', HTTP_HOST=host)
 
             form = PasswordResetForm({'email': recipient})
             if not form.is_valid():
